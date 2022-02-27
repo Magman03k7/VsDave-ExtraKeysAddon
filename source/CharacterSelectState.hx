@@ -103,6 +103,7 @@ class CharacterSelectState extends MusicBeatState
 			FlxG.save.data.unlockedcharacters = [true,true,true,true,true,true,true,true,true,true]; //unlock everyone\
 		#end
 
+		if (!FlxG.save.data.unlockedcharacters[8]) FlxG.save.data.unlockedcharacters[8] = true; //damnitimstupid
 		FlxG.sound.playMusic(Paths.music("goodEnding"),1,true);
 
 		var bg:FlxSprite = new FlxSprite(-600, -200).loadGraphic(Paths.image('dave/sky_night'));

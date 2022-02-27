@@ -713,13 +713,13 @@ class PlayState extends MusicBeatState
 				preload('dave/redsky_insanity');
 		}
 
-		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 200, healthBarBG.y + 50, 0, "", 20);
+		scoreTxt = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 200, healthBarBG.y + 40, 0, "", 20);
 		scoreTxt.setFormat(Paths.font("comic.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		scoreTxt.scrollFactor.set();
 		scoreTxt.borderSize = 1.5;
 		add(scoreTxt);
 
-		botPlayState = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 75, healthBarBG.y + (FlxG.save.data.downscroll ? 100 : -100), 0,
+		botPlayState = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 75, healthBarBG.y + (FlxG.save.data.downscroll || (SONG.song.toLowerCase() == "unfairness" && !FlxG.save.data.modchart) ? 100 : -100), 0,
 		"BOTPLAY", 20);
 		botPlayState.setFormat(Paths.font("comic.ttf"), 42, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		botPlayState.scrollFactor.set();
@@ -1149,7 +1149,7 @@ class PlayState extends MusicBeatState
 					notice = new FlxText(0, 0, 0, cText, 32);
 					notice.x = FlxG.width * 0.572;
 					notice.y = 120;
-					if (FlxG.save.data.downscroll)
+					if (FlxG.save.data.downscroll || (SONG.song.toLowerCase() == "unfairness" && !FlxG.save.data.modchart))
 					{
 						notice.y = FlxG.height - 200;
 					}
@@ -1207,7 +1207,7 @@ class PlayState extends MusicBeatState
 						noticeB[i] = new FlxText(0, 0, 0, cText[i], 24);
 						noticeB[i].x = FlxG.width * 0.5 + nJx*i + 55;
 						noticeB[i].y = 20;
-						if (FlxG.save.data.downscroll)
+						if (FlxG.save.data.downscroll || (SONG.song.toLowerCase() == "unfairness" && !FlxG.save.data.modchart))
 						{
 							noticeB[i].y = FlxG.height - 200;
 							switch (i)
@@ -2294,9 +2294,9 @@ class PlayState extends MusicBeatState
 					switch (SONG.song.toLowerCase())
 					{
 						case 'cheating':
-							health -= healthtolower;							
+							health -= (healthtolower / (storyDifficulty == 3 ? 1.5 : 1));
 						case 'unfairness':
-							health -= (healthtolower / (!FlxG.save.data.modchart ? 6 : storyDifficulty == 3 && FlxG.save.data.modchart ? 3 : 2));
+							health -= (healthtolower / (storyDifficulty == 3 ? 12 : 6));
 						default:
 							if (FlxG.save.data.healthdrain && health > 0.2)
 							{
