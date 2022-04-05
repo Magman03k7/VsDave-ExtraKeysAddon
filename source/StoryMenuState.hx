@@ -215,6 +215,7 @@ class StoryMenuState extends MusicBeatState
 		sprDifficulty.animation.addByPrefix('easy', 'EASY');
 		sprDifficulty.animation.addByPrefix('normal', 'NORMAL');
 		sprDifficulty.animation.addByPrefix('hard', 'HARD');
+		sprDifficulty.animation.addByPrefix('extrakeys', 'EXTRAKEYS');
 		sprDifficulty.animation.addByPrefix('finale', 'FINALE');
 		sprDifficulty.animation.play('easy');
 		changeDifficulty();
@@ -322,22 +323,20 @@ class StoryMenuState extends MusicBeatState
 					changeWeek(1);
 				}
 
-				if (curWeek != 3) {
-					if (controls.RIGHT)
-						rightArrow.animation.play('press')
-					else
-						rightArrow.animation.play('idle');
-	
-					if (controls.LEFT)
-						leftArrow.animation.play('press');
-					else
-						leftArrow.animation.play('idle');
-	
-					if (controls.RIGHT_P)
-						changeDifficulty(1);
-					if (controls.LEFT_P)
-						changeDifficulty(-1);
-				}
+				if (controls.RIGHT)
+					rightArrow.animation.play('press')
+				else
+					rightArrow.animation.play('idle');
+
+				if (controls.LEFT)
+					leftArrow.animation.play('press');
+				else
+					leftArrow.animation.play('idle');
+
+				if (controls.RIGHT_P)
+					changeDifficulty(1);
+				if (controls.LEFT_P)
+					changeDifficulty(-1);
 			}
 
 			if (controls.ACCEPT && !dofunnytristan)
@@ -353,7 +352,7 @@ class StoryMenuState extends MusicBeatState
 			FlxG.switchState(new MainMenuState());
 		}
 
-		if (curWeek == 3 && curDifficulty != 1)
+		if (curWeek == 3 && curDifficulty != 1 && curDifficulty != 3)
 		{
 			changeDifficulty();
 		}
@@ -393,6 +392,8 @@ class StoryMenuState extends MusicBeatState
 					diffic = '-easy';
 				case 2:
 					diffic = '-hard';
+				case 3:
+					diffic = '-extrakeys';
 			}
 
 			PlayState.storyDifficulty = curDifficulty;
@@ -409,10 +410,13 @@ class StoryMenuState extends MusicBeatState
 					default:
 						LoadingState.loadAndSwitchState(new PlayState(), true);
 					case 1:
-						FlxG.sound.music.stop();
-						LoadingState.loadAndSwitchState(new VideoState('assets/videos/daveCutscene.webm', new PlayState()), true);
+						if (curDifficulty != 3) {
+							FlxG.sound.music.stop();
+							LoadingState.loadAndSwitchState(new VideoState('assets/videos/daveCutscene.webm', new PlayState()), true);
+						}
+						else
+							LoadingState.loadAndSwitchState(new PlayState(), true);
 				}
-				
 			});
 			//new FlxTimer().start(1, function(tmr:FlxTimer)
 			//{
@@ -427,8 +431,16 @@ class StoryMenuState extends MusicBeatState
 		switch (curWeek)
 		{
 			case 3:
-				sprDifficulty.animation.play('finale');
-				sprDifficulty.offset.x = 45;
+				switch (curDifficulty)
+				{
+					case 1:
+						sprDifficulty.animation.play('finale');
+						sprDifficulty.offset.x = 45;
+					case 3:
+						sprDifficulty.animation.play('extrakeys');
+						sprDifficulty.offset.x = 70;
+						sprDifficulty.offset.y = 0;
+				}
 			default:
 				switch (curDifficulty)
 				{
@@ -444,23 +456,29 @@ class StoryMenuState extends MusicBeatState
 						sprDifficulty.animation.play('hard');
 						sprDifficulty.offset.x = 20;
 						sprDifficulty.offset.y = 0;
+					case 3:
+						sprDifficulty.animation.play('extrakeys');
+						sprDifficulty.offset.x = 70;
+						sprDifficulty.offset.y = 0;
 				}
 		}
 	}
 
 	function changeDifficulty(change:Int = 0):Void
 	{
-		curDifficulty += change;
 		if (curWeek == 3)
 		{
-			if (curDifficulty != 1)
+			if (curDifficulty == 1)
+				curDifficulty = 3;
+			else if (curDifficulty == 3)
 				curDifficulty = 1;
 		}
 		else
 		{
+			curDifficulty += change;
 			if (curDifficulty < 0)
-				curDifficulty = 2;
-			if (curDifficulty > 2)
+				curDifficulty = 3;
+			if (curDifficulty > 3)
 				curDifficulty = 0;
 		}
 
@@ -492,20 +510,12 @@ class StoryMenuState extends MusicBeatState
 		if (actualWeeks[curIndex] == 4 && !tristanunlocked) curIndex += (change > 0 ? 1 : -1); //repeat it again
 		curWeek = actualWeeks[curIndex];
 		if (curDifficulty < 0)
-			curDifficulty = 2;
-		if (curDifficulty > 2)
+			curDifficulty = 3;
+		if (curDifficulty > 3)
 			curDifficulty = 0;
-		if (curWeek == 3)
-		{
+
+		if (curWeek == 3 && curDifficulty != 1 && curDifficulty != 3)
 			curDifficulty = 1;
-			leftArrow.visible = false;
-			rightArrow.visible = false;
-		}
-		else
-		{
-			leftArrow.visible = true;
-			rightArrow.visible = true;
-		}
 	
 		updateDifficultySprite();
 		

@@ -52,11 +52,16 @@ class MusicPlayerState extends MusicBeatState
         {
             var splitstring:Array<String> = initSonglist[i].split(",");
 
-            songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",true));
+            songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",false,true));
+
+            if (splitstring[4] != "notcanon")
+            {
+                songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",true,true));
+            }
 
             if (splitstring[0] != "external") //remove this later
             {
-                songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",false));
+                songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",false,false));
             }
         }
 
@@ -74,7 +79,7 @@ class MusicPlayerState extends MusicBeatState
 
         for (i in 0...songs.length)
         {
-            var songText:Alphabet = new Alphabet(0, 0, songs[i].songName + (songs[i].hasVocals ? "" : "-Inst"), true, false);
+            var songText:Alphabet = new Alphabet(0, 0, songs[i].songName + (songs[i].hasShaggyVocals ? "-Shaggy" : songs[i].hasVocals ? "" : "-Inst"), true, false);
             songText.isMenuItem = true;
             //songText.SwitchXandY = true; this is stinky and dumb
             songText.targetY = i;
@@ -149,6 +154,15 @@ class MusicPlayerState extends MusicBeatState
                     null);
                 #end
                 
+            }
+            else if (songs[curSelected].hasShaggyVocals)
+            {
+                #if desktop
+                DiscordClient.changePresence('In The OST Menu', '\nListening To: ' +
+                    CoolUtil.formatString(songs[curSelected].songName) + ' Shaggy Cover | ' +
+                    currentTimeFormatted + ' / ' + lengthFormatted, 
+                    null);
+                #end
             }
             else
             {
@@ -259,6 +273,7 @@ class MusicPlayerState extends MusicBeatState
                     currentlyplaying = true;
                     if (songs[curSelected].hasVocals)
                     {
+                        Main.shaggyVoice = songs[curSelected].hasShaggyVocals;
                         CurVocals = new FlxSound().loadEmbedded(Paths.voices(songs[curSelected].songName));
                     }
                     else
@@ -334,11 +349,14 @@ class MusicPlayerState extends MusicBeatState
 
     function ShowBar(char:String)
     {
+        var bfchar = "bf";
+        if (songs[curSelected].hasShaggyVocals) bfchar = "shaggy";
         iconP1.alpha = 0;
         iconP2.alpha = 0;
         barText.alpha = 0;
         healthBar.alpha = 0;
         healthBarBG.alpha = 0;
+        iconP1.animation.play(bfchar);
         iconP1.visible = true;
         iconP2.animation.play(char);
         iconP2.visible = true;
@@ -410,14 +428,16 @@ class PlaySongMetadata
 	public var ExternalSong:Bool = false;
     public var ShowBadIcon:Bool = false;
 	public var songCharacter:String = "";
+    public var hasShaggyVocals:Bool = true;
     public var hasVocals:Bool = true;
 
-	public function new(song:String, external:Bool, songCharacter:String, bad:Bool, vocal:Bool)
+	public function new(song:String, external:Bool, songCharacter:String, bad:Bool, shaggyVocal:Bool, vocal:Bool)
 	{
 		this.songName = song;
 		this.ExternalSong = external;
 		this.songCharacter = songCharacter;
         this.ShowBadIcon = bad;
+        this.hasShaggyVocals = shaggyVocal;
         this.hasVocals = vocal;
 	}
 }

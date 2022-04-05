@@ -1152,7 +1152,7 @@ class ChartingState extends MusicBeatState
 		{
 			FlxG.switchState(new VideoState('assets/videos/fortnite/fortniteballs.webm', new CrasherState())); //YOU THINK YOU ARE SO CLEVER DON'T YOU? HAHA FUCK YOU
 		}
-		else if (song.toLowerCase() == 'unfairness' || song.toLowerCase() == 'cheating')
+		else if (song.toLowerCase() == 'unfairness' || song.toLowerCase() == 'cheating' || song.toLowerCase() == 'unfair-bambi-break-phone')
 		{
 			FlxG.switchState(new YouCheatedSomeoneIsComing()); //YOU THINK YOU ARE SO CLEVER DON'T YOU? HAHA FUCK YOU
 		}

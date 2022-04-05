@@ -65,13 +65,13 @@ class CharacterSelectState extends MusicBeatState
 	[
 		new CharacterInSelect(['bf', 'bf-pixel', 'bf-christmas'], [1, 1, 1, 1], ["Boyfriend", "Pixel Boyfriend", "Christmas Boyfriend"]),
 		new CharacterInSelect(['what-lmao', 'marcello-dave'], [0.05, 0.05, 0.05, 0.05], ["IF YOU SEE THIS CHRACTER, REPORT IT TO THE DEVS!", "IF YOU SEE THIS CHRACTER, REPORT IT TO THE DEVS!"]),
-		new CharacterInSelect(['tristan', 'tristan-beta'], [2, 0.5, 0.5, 0.5], ["Tristan", 'Tristan (Beta)']),
+		new CharacterInSelect(['tristan', 'tristan-beta'], [2, 0.75, 0.75, 0.75], ["Tristan", 'Tristan (Beta)']),
 		new CharacterInSelect(['dave', 'dave-annoyed', 'dave-splitathon'], [0.25, 0.25, 2, 2], ["Dave", "Dave (Insanity)", 'Dave (Splitathon)']),
 		//these are the canon bambis' names according to marcello, dont change them back
-		new CharacterInSelect(['bambi', 'bambi-new', 'bambi-splitathon', 'bambi-angey', 'bambi-old', 'bambi-bevel'], [0.05, 0.05, 3, 0.05], ["Mr. Bambi", 'Bambi (Farmer)', 'Bambi (Splitathon)', 'Bambie', 'Bambi (Joke)', 'Bambi (Bevel)']),
+		new CharacterInSelect(['bambi', 'bambi-new', 'bambi-splitathon', 'bambi-angey', 'bambi-old', 'bambi-bevel'], [0.05, 0.05, 4, 0.05], ["Mr. Bambi", 'Bambi (Farmer)', 'Bambi (Splitathon)', 'Bambie', 'Bambi (Joke)', 'Bambi (Bevel)']),
 		new CharacterInSelect(['dave-angey'], [2, 2, 0.25, 0.25], ["3D Dave"]),
-		new CharacterInSelect(['tristan-golden'], [0.25, 0.25, 0.25, 2], ["Golden Tristan"]),
-		new CharacterInSelect(['bambi-3d', 'bambi-unfair'], [0.05, 3, 0.05, 0.05], ["3D Bambi", 'Unfair Bambi']),
+		new CharacterInSelect(['tristan-golden'], [0.75, 0.75, 0.75, 2], ["Golden Tristan"]),
+		new CharacterInSelect(['bambi-3d', 'bambi-unfair'], [0.05, 4, 0.05, 0.05], ["3D Bambi", 'Unfair Bambi']),
 		new CharacterInSelect(['shaggy'], [1, 1, 1, 1], ["Shaggy"]),
 		//currentReal order should be 0, 1 (skipped anyways), 3, 4, 2, 5, 7, 6
 	];
@@ -292,18 +292,14 @@ class CharacterSelectState extends MusicBeatState
 			{
 				current = characters.length - 1;
 			}
-			#if !debug 
 			if(current == 1)
 			{
 				current = 0;
 			}
-			#end
 			switch(current)
 			{
-				#if debug 
-				case 1:
-					currentReal = 1;
-				#end
+				/* case 1:
+					currentReal = 1; */
 				case 2:
 					currentReal = 3;
 				case 3:
@@ -338,10 +334,8 @@ class CharacterSelectState extends MusicBeatState
 			#end
 			switch(current)
 			{
-				#if debug 
-				case 1:
-					currentReal = 1;
-				#end
+				/* case 1:
+					currentReal = 1; */
 				case 2:
 					currentReal = 3;
 				case 3:
@@ -414,7 +408,8 @@ class CharacterSelectState extends MusicBeatState
 			case 'bambi-angey':
 				char.y = 100 + 450;
 			case 'shaggy':
-				char.x -= 50;
+				char.y = 100;
+				char.x += 50;
 		}
 		add(char);
 		funnyIconMan.animation.play(char.curCharacter);
@@ -427,7 +422,7 @@ class CharacterSelectState extends MusicBeatState
 			if(char.curCharacter == 'bambi-3d' || char.curCharacter == 'bambi-unfair')
 			{
 				//funny canon name
-				characterText.text = '[EXPUNGED]';
+				characterText.text = '[̷̧̲̣͒́̽E̵̙̟͛͠X̵͈̲̪̞͝͝P̵͎̌͂̅͗Ù̷͇͙͔͂̉̆Ñ̵̨̡̪͇̅́G̸̰̮͝E̶͙̮͒̍̇̋ͅD̶̨̺̱̀̈́̂͋]̴̨̠̥̌'; // [EXPUNGED]
 			}
 		}
 		characterText.screenCenter(X);

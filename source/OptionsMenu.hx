@@ -33,7 +33,7 @@ class OptionsMenu extends MusicBeatState
 		DiscordClient.changePresence("In the Options Menu", null);
 		#end
 		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image('backgrounds/SUSSUS AMOGUS'));
-		controlsStrings = CoolUtil.coolStringFile((FlxG.save.data.dfjk ? 'DFJK' : 'WASD') + "\n" + (FlxG.save.data.newInput ? "Ghost Tapping" : "No Ghost Tapping") + "\n" + (FlxG.save.data.downscroll ? 'Downscroll' : 'Upscroll') + "\nAccuracy " + (FlxG.save.data.accuracyDisplay ? "off" : "on") + "\n" + (FlxG.save.data.eyesores ? 'Eyesores Enabled' : 'Eyesores Disabled') + "\n" + (FlxG.save.data.donoteclick ? "Hitsounds On" : "Hitsounds Off") + "\n" + (FlxG.save.data.freeplayCuts ? "Freeplay Cutscenes On" : "Freeplay Cutscenes Off") + "\nMod Chart " + (FlxG.save.data.modchart ? "off" : "on") + "\nHealth Drain " + (!FlxG.save.data.healthdrain ? "off" : "on") + "\nBot Play " + (!FlxG.save.data.botplay ? "off" : "on"));
+		controlsStrings = CoolUtil.coolStringFile((FlxG.save.data.dfjk ? 'DFJK' : 'WASD') + "\n" + (FlxG.save.data.newInput ? "Ghost Tapping" : "No Ghost Tapping") + "\n" + (FlxG.save.data.downscroll ? 'Downscroll' : 'Upscroll') + "\n" + (FlxG.save.data.eyesores ? 'Eyesores Enabled' : 'Eyesores Disabled') + "\n" + (FlxG.save.data.donoteclick ? "Hitsounds On" : "Hitsounds Off") + "\n" + (FlxG.save.data.freeplayCuts ? "Freeplay Cutscenes On" : "Freeplay Cutscenes Off") + "\nOpponent Notes Counter " + (!FlxG.save.data.opponentnotes ? "off" : "on") + "\nNew Unfairness Mod Chart " + (!FlxG.save.data.newunfair ? "off" : "on") + "\nMod Chart " + (!FlxG.save.data.modchart ? "off" : "on") + "\nHealth Drain " + (!FlxG.save.data.healthdrain ? "off" : "on") + "\nPractice Mode " + (!FlxG.save.data.practicemode ? "off" : "on") + "\nBot Play " + (!FlxG.save.data.botplay ? "off" : "on"));
 		
 		trace(controlsStrings);
 
@@ -127,58 +127,74 @@ class OptionsMenu extends MusicBeatState
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 3:
-						FlxG.save.data.accuracyDisplay = !FlxG.save.data.accuracyDisplay;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Accuracy " + (FlxG.save.data.accuracyDisplay ? "off" : "on"), true, false);
+						FlxG.save.data.eyesores = !FlxG.save.data.eyesores;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.eyesores ? 'Eyesores Enabled' : 'Eyesores Disabled'), true, false);
 						ctrl.isMenuItem = true;
 						ctrl.targetY = curSelected - 3;
 						ctrl.screenCenter(X);
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 4:
-						FlxG.save.data.eyesores = !FlxG.save.data.eyesores;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.eyesores ? 'Eyesores Enabled' : 'Eyesores Disabled'), true, false);
+						FlxG.save.data.donoteclick = !FlxG.save.data.donoteclick;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.donoteclick ? "Hitsounds On" : "Hitsounds Off"), true, false);
 						ctrl.isMenuItem = true;
 						ctrl.targetY = curSelected - 4;
 						ctrl.screenCenter(X);
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 5:
-						FlxG.save.data.donoteclick = !FlxG.save.data.donoteclick;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.donoteclick ? "Hitsounds On" : "Hitsounds Off"), true, false);
+						FlxG.save.data.freeplayCuts = !FlxG.save.data.freeplayCuts;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.freeplayCuts ? "Freeplay Cutscenes On" : "Freeplay Cutscenes Off"), true, false);
 						ctrl.isMenuItem = true;
 						ctrl.targetY = curSelected - 5;
 						ctrl.screenCenter(X);
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 6:
-						FlxG.save.data.freeplayCuts = !FlxG.save.data.freeplayCuts;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.freeplayCuts ? "Freeplay Cutscenes On" : "Freeplay Cutscenes Off"), true, false);
+						FlxG.save.data.opponentnotes = !FlxG.save.data.opponentnotes;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Opponent Notes Counter " + (!FlxG.save.data.opponentnotes ? "off" : "on"), true, false);
 						ctrl.isMenuItem = true;
 						ctrl.targetY = curSelected - 6;
 						ctrl.screenCenter(X);
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 7:
-						FlxG.save.data.modchart = !FlxG.save.data.modchart;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Mod Chart " + (FlxG.save.data.modchart ? "off" : "on"), true, false);
+						FlxG.save.data.newunfair = !FlxG.save.data.newunfair;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "New Unfairness Mod Chart " + (!FlxG.save.data.newunfair ? "off" : "on"), true, false);
 						ctrl.isMenuItem = true;
 						ctrl.targetY = curSelected - 7;
 						ctrl.screenCenter(X);
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 8:
-						FlxG.save.data.healthdrain = !FlxG.save.data.healthdrain;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Health Drain " + (!FlxG.save.data.healthdrain ? "off" : "on"), true, false);
+						FlxG.save.data.modchart = !FlxG.save.data.modchart;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Mod Chart " + (!FlxG.save.data.modchart ? "off" : "on"), true, false);
 						ctrl.isMenuItem = true;
 						ctrl.targetY = curSelected - 8;
 						ctrl.screenCenter(X);
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 9:
+						FlxG.save.data.healthdrain = !FlxG.save.data.healthdrain;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Health Drain " + (!FlxG.save.data.healthdrain ? "off" : "on"), true, false);
+						ctrl.isMenuItem = true;
+						ctrl.targetY = curSelected - 9;
+						ctrl.screenCenter(X);
+						ctrl.itemType = 'Vertical';
+						grpControls.add(ctrl);
+					case 10:
+						FlxG.save.data.practicemode = !FlxG.save.data.practicemode;
+						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Practice Mode " + (!FlxG.save.data.practicemode ? "off" : "on"), true, false);
+						ctrl.isMenuItem = true;
+						ctrl.targetY = curSelected - 10;
+						ctrl.screenCenter(X);
+						ctrl.itemType = 'Vertical';
+						grpControls.add(ctrl);
+					case 11:
 						FlxG.save.data.botplay = !FlxG.save.data.botplay;
 						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Bot Play " + (!FlxG.save.data.botplay ? "off" : "on"), true, false);
 						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 9;
+						ctrl.targetY = curSelected - 11;
 						ctrl.screenCenter(X);
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);

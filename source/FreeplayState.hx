@@ -108,6 +108,8 @@ class FreeplayState extends MusicBeatState
 					addWeek(['Cheating'], 2, ['bambi-3d']);
 				if(FlxG.save.data.unfairnessFound)
 					addWeek(['Unfairness'], 2, ['bambi-unfair']);
+				if(FlxG.save.data.beatUnfairness)
+					addWeek(['Unfair-Bambi-Break-Phone'], 2, ['bambi-unfair-loser']);
 			case 'extra':
 				addWeek(['Mealie'], 2, ['bambi-loser']);
 				addWeek(['Furiosity', 'Old-House', 'Old-Insanity'], 1, ['dave-angey', 'dave-old', 'dave-old']);
@@ -289,6 +291,8 @@ class FreeplayState extends MusicBeatState
 
 		if (controls.BACK)
 		{
+			if (songs[curSelected].songName.toLowerCase() == "unfair-bambi-break-phone")
+				FlxG.sound.playMusic(Paths.music('freakyMenu'));
 			FlxG.switchState(new FreeplayState());
 		}
 
@@ -310,7 +314,7 @@ class FreeplayState extends MusicBeatState
 	function changeDiff(change:Int = 0)
 	{
 		curDifficulty += change;
-		if (songs[curSelected].songName.toLowerCase() == "supernovae"  || songs[curSelected].songName.toLowerCase() == "glitch"  || songs[curSelected].songName.toLowerCase() == "vs-dave-thanksgiving"  || songs[curSelected].songName.toLowerCase() == "mealie" || songs[curSelected].songName.toLowerCase() == "furiosity" || songs[curSelected].songName.toLowerCase() == "old-house" || songs[curSelected].songName.toLowerCase() == "old-insanity" || songs[curSelected].songName.toLowerCase() == "old-blocked" || songs[curSelected].songName.toLowerCase() == "old-corn-theft" || songs[curSelected].songName.toLowerCase() == "old-maze" || songs[curSelected].songName.toLowerCase() == "beta-maze" || songs[curSelected].songName.toLowerCase() == "old-splitathon")
+		if (songs[curSelected].songName.toLowerCase() == "vs-dave-thanksgiving" || songs[curSelected].songName.toLowerCase() == "unfair-bambi-break-phone" || songs[curSelected].songName.toLowerCase() == "mealie" || songs[curSelected].songName.toLowerCase() == "furiosity" || songs[curSelected].songName.toLowerCase() == "old-house" || songs[curSelected].songName.toLowerCase() == "old-insanity" || songs[curSelected].songName.toLowerCase() == "old-blocked" || songs[curSelected].songName.toLowerCase() == "old-corn-theft" || songs[curSelected].songName.toLowerCase() == "old-maze" || songs[curSelected].songName.toLowerCase() == "beta-maze" || songs[curSelected].songName.toLowerCase() == "old-splitathon")
 		{
 			if (curDifficulty < 0)
 				curDifficulty = 2;
@@ -374,7 +378,7 @@ class FreeplayState extends MusicBeatState
 		if (curSelected >= songs.length)
 			curSelected = 0;
 
-		if (songs[curSelected].songName.toLowerCase() == "supernovae"  || songs[curSelected].songName.toLowerCase() == "glitch"  || songs[curSelected].songName.toLowerCase() == "vs-dave-thanksgiving"  || songs[curSelected].songName.toLowerCase() == "mealie" || songs[curSelected].songName.toLowerCase() == "furiosity" || songs[curSelected].songName.toLowerCase() == "old-house" || songs[curSelected].songName.toLowerCase() == "old-insanity" || songs[curSelected].songName.toLowerCase() == "old-blocked" || songs[curSelected].songName.toLowerCase() == "old-corn-theft" || songs[curSelected].songName.toLowerCase() == "old-maze" || songs[curSelected].songName.toLowerCase() == "beta-maze")
+		if (songs[curSelected].songName.toLowerCase() == "vs-dave-thanksgiving" || songs[curSelected].songName.toLowerCase() == "unfair-bambi-break-phone" || songs[curSelected].songName.toLowerCase() == "mealie" || songs[curSelected].songName.toLowerCase() == "furiosity" || songs[curSelected].songName.toLowerCase() == "old-house" || songs[curSelected].songName.toLowerCase() == "old-insanity" || songs[curSelected].songName.toLowerCase() == "old-blocked" || songs[curSelected].songName.toLowerCase() == "old-corn-theft" || songs[curSelected].songName.toLowerCase() == "old-maze" || songs[curSelected].songName.toLowerCase() == "beta-maze")
 		{
 			if (curDifficulty < 0)
 				curDifficulty = 2;

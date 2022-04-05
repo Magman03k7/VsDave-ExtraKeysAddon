@@ -52,6 +52,24 @@ class TitleState extends MusicBeatState
 			sys.FileSystem.createDirectory(Sys.getCwd() + "\\assets\\replays");
 		#end
 
+		// preload all the long songs
+		var preloadSongs:Array<String> = [
+			'maze', 'splitathon', 'vs-dave-thanksgiving', 'beta-maze', 'old-splitathon'
+		];
+
+		var preloadShaggyVoiceSongs:Array<String> = [
+			'maze', 'splitathon'
+		];
+
+		for (song in preloadSongs) {
+			FlxG.sound.cache(Paths.inst(song));
+			FlxG.sound.cache(Paths.voices(song));
+		}
+
+		for (song in preloadShaggyVoiceSongs) {
+			FlxG.sound.cache(Paths.voices(song, true));
+		}
+
 		fun = FlxG.random.int(0, 999);
 		if(fun == 1)
 		{
@@ -100,6 +118,12 @@ class TitleState extends MusicBeatState
 		#elseif CHARTING
 		FlxG.switchState(new ChartingState());
 		#else
+
+		/* PlayState.SONG = Song.loadFromJson("unfairness-extrakeys", "unfairness");
+		PlayState.storyDifficulty = 3;
+		PlayState.formoverride = "shaggy";
+		LoadingState.loadAndSwitchState(new PlayState()); */
+
 		new FlxTimer().start(1, function(tmr:FlxTimer)
 		{
 			startIntro();
@@ -120,9 +144,9 @@ class TitleState extends MusicBeatState
 			diamond.persist = true;
 			diamond.destroyOnNoUse = false;
 
-			FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 1, new FlxPoint(-1, 0), {asset: diamond, width: 32, height: 32},
+			FlxTransitionableState.defaultTransIn = new TransitionData(FADE, FlxColor.BLACK, 0.5, new FlxPoint(-1, 0), {asset: diamond, width: 32, height: 32},
 				new FlxRect(-200, -200, FlxG.width * 1.42, FlxG.height * 4.2));
-			FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.7, new FlxPoint(1, 0),
+			FlxTransitionableState.defaultTransOut = new TransitionData(FADE, FlxColor.BLACK, 0.35, new FlxPoint(1, 0),
 				{asset: diamond, width: 32, height: 32}, new FlxRect(-200, -200, FlxG.width * 1.42, FlxG.height * 4.2));
 
 			transIn = FlxTransitionableState.defaultTransIn;
