@@ -742,7 +742,7 @@ class PlayState extends MusicBeatState
 		kadeEngineWatermark2.borderSize = 1.25;
 		add(kadeEngineWatermark2);
 		var kadeEngineWatermark3 = new FlxText(4, textYPos + 40, 0,
-		"Extra Keys Addon v1.2", 16);
+		"Extra Keys Addon v1.2.1", 16);
 		kadeEngineWatermark3.setFormat(Paths.font("comic.ttf"), 16, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		kadeEngineWatermark3.scrollFactor.set();
 		kadeEngineWatermark3.borderSize = 1.25;
@@ -3165,7 +3165,7 @@ class PlayState extends MusicBeatState
 						if (lasthitnotetime > Conductor.songPosition - Conductor.safeZoneOffset
 							&& lasthitnotetime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.2)) //reduce the past allowed barrier just so notes close together that aren't jacks dont cause missed inputs
 						{
-							if ((note.noteData % keyAmmo[mania]) != (lasthitnote % keyAmmo[mania]))
+							if ((note.noteData % keyAmmo[mania]) == (lasthitnote % keyAmmo[mania]))
 							{
 								continue; //the jacks are too close together
 							}
@@ -3179,8 +3179,7 @@ class PlayState extends MusicBeatState
 			}
 			if (!theFunne && canMiss)
 			{
-				if(!inCutscene && !botPlay)
-					badNoteCheck(null);
+				badNoteCheck(null);
 			}
 		}
 
