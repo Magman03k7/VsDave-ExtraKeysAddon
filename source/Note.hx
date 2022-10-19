@@ -1,17 +1,20 @@
 package;
 
+import flixel.input.keyboard.FlxKey;
+import flixel.FlxObject;
+import Controls.Device;
+import flixel.text.FlxText;
 import flixel.math.FlxRandom;
-import flixel.FlxState;
+import flixel.addons.effects.FlxSkewedSprite;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.math.FlxMath;
 import flixel.util.FlxColor;
-#if polymod
-import polymod.format.ParseRules.TargetSignatureElement;
-#end
+import PlayState;
 
 using StringTools;
+import StringTools;
 
 class Note extends FlxSprite
 {
@@ -23,436 +26,383 @@ class Note extends FlxSprite
 	public var canBeHit:Bool = false;
 	public var tooLate:Bool = false;
 	public var wasGoodHit:Bool = false;
-	public var hitByOpponent:Bool = false;
 	public var prevNote:Note;
 	public var LocalScrollSpeed:Float = 1;
-	public var localSpreadX:Float = 1;
-	public var localSpreadY:Float = 1;
 
 	public var sustainLength:Float = 0;
 	public var isSustainNote:Bool = false;
 
-
-	public var noteScore:Float = 1;
-	public var mania:Int = 0;
-
-	public static var noteyOff1:Array<Float> = [4, 0, 0, 0, 0, 0];
-	public static var noteyOff2:Array<Float> = [0, 0, 0, 0, 0, 0];
-	public static var noteyOff3:Array<Float> = [0, 0, 0, 0, 0, 0];
-
-	public static var scales:Array<Float> = [0.7, 0.6, 0.55, 0.46];
+	private var CharactersWith3D:Array<String> = ["dave-angey", "bambi-3d", 'bambi-unfair', 'exbungo', 'expunged', 'dave-festival-3d', 'dave-3d-recursed', 'bf-3d', 'nofriend'];
 
 	public static var swagWidth:Float = 160 * 0.7;
-	public static var noteScale:Float;
 	public static var PURP_NOTE:Int = 0;
 	public static var GREEN_NOTE:Int = 2;
 	public static var BLUE_NOTE:Int = 1;
 	public static var RED_NOTE:Int = 3;
 
-	public static var tooMuch:Float = 30;
-
 	private var notetolookfor = 0;
 
-	public var MyStrum:FlxSprite;
+	public var originalType = 0;
 
-	private var InPlayState:Bool = false;
+	public var MyStrum:StrumNote;
 
-	private var CharactersWith3D:Array<String> = ["dave-angey", "bambi-3d", 'dave-annoyed-3d', 'dave-3d-standing-bruh-what', 'bambi-unfair'];
+	public var noteStyle:String = 'normal';
 
-	public var rating:String = "shit";
+	public var guitarSection:Bool;
 
-	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?musthit:Bool = true, noteStyle:String = "normal") //had to add a new variable to this because FNF dumb
+	public var alphaMult:Float = 1.0;
+	public var noteOffset:Float = 0;
+
+	var notes = ['purple', 'blue', 'green', 'red'];
+
+	public function new(strumTime:Float, noteData:Int, ?prevNote:Note, ?sustainNote:Bool = false, ?musthit:Bool = true, noteStyle:String = "normal", inCharter:Bool = false, guitarSection:Bool = false)
 	{
-		swagWidth = 160 * 0.7; //factor not the same as noteScale
-		noteScale = 0.7;
-		mania = 0;
-		if (PlayState.SONG.mania == 1)
-		{
-			swagWidth = 120 * 0.7;
-			noteScale = 0.6;
-			mania = 1;
-		}
-		else if (PlayState.SONG.mania == 2)
-		{
-			swagWidth = 90 * 0.7;
-			noteScale = 0.46;
-			mania = 2;
-		}
 		super();
 
 		if (prevNote == null)
 			prevNote = this;
 
 		this.prevNote = prevNote;
-		isSustainNote = sustainNote;
-
-		x += 50;
-		if (mania == 2) x += 6 - tooMuch;
-		// MAKE SURE ITS DEFINITELY OFF SCREEN?
-		y -= 2000;
-		this.strumTime = strumTime + FlxG.save.data.offset;
-
-		var addto = FlxG.save.data.offset;
-		if (Main.editor) //xd
-		{
-			addto = 0;
-		}
-		if (this.strumTime < 0 )
-			this.strumTime = 0;
-
+		this.noteStyle = noteStyle;
+		this.isSustainNote = sustainNote;
+		this.originalType = noteData;
+		this.guitarSection = guitarSection;
 		this.noteData = noteData;
 
-		var daStage:String = PlayState.curStage;
-		if (((CharactersWith3D.contains(PlayState.dadChar) && !musthit) || (CharactersWith3D.contains(PlayState.bfChar) && musthit)) || ((CharactersWith3D.contains(PlayState.SONG.player2) || CharactersWith3D.contains(PlayState.SONG.player1)) && ((this.strumTime / 50) % 20 > 10)))
+		x += 78;
+		// MAKE SURE ITS DEFINITELY OFF SCREEN?
+		//NOW IT SHALL FOR REALLY ALWAYS BE OFF SCREEN.
+		//luckily i think only the devs really noticed that you can see the notes spawn in at the bottom of the screen when there is a modchart.
+		y -= 9000;
+		
+		inCharter ? this.strumTime = strumTime : {
+			this.strumTime = Math.round(strumTime);
+			alpha = 0;
+		}
+		
+		if (this.strumTime < 0)
+			this.strumTime = 0;
+
+		if (isInState('PlayState'))
 		{
-				frames = Paths.getSparrowAtlas('NOTE_assets_3D');
+			this.strumTime += FlxG.save.data.offset;
+		}		
+		if ((guitarSection && inCharter && noteData < 5) || (guitarSection))
+		{
+			notes = ['green', 'red', 'yellow', 'blue', 'orange'];
+		}
+
+		var notePathLol:String = 'notes/NOTE_assets';
+		var noteSize:Float = 0.7;
+
+		if ((((CharactersWith3D.contains(PlayState.SONG.player2) && !musthit) || ((CharactersWith3D.contains(PlayState.SONG.player1)
+				|| CharactersWith3D.contains(PlayState.characteroverride) || CharactersWith3D.contains(PlayState.formoverride)) && musthit))
+				|| ((CharactersWith3D.contains(PlayState.SONG.player2) || CharactersWith3D.contains(PlayState.SONG.player1)) && ((this.strumTime / 50) % 20 > 10)))
+				&& this.noteStyle == 'normal')
+		{
+			this.noteStyle = '3D';
+			notePathLol = 'notes/NOTE_assets_3D';
+		}
+		switch (noteStyle)
+		{
+			case 'phone':
+				notePathLol = 'notes/NOTE_phone';
+			case 'shape':
+				notePathLol = 'notes/NOTE_assets_Shape';
+		}
+		switch (PlayState.SONG.song.toLowerCase())
+		{
+			case 'overdrive':
+				notePathLol = 'notes/OMGtop10awesomehi';
+			case 'recursed':
+				musthit ? {
+					if ((this.strumTime / 50) % 20 > 12 && !isSustainNote)
+					{
+						this.noteStyle = 'text';
+					}
+				} : {
+					this.noteStyle = 'recursed';
+					notePathLol = 'notes/NOTE_recursed';
+				}
+		}
+		if (guitarSection)
+		{
+			this.noteStyle = 'guitarHero';
+		}
+		switch (this.noteStyle)
+		{
+			default:
+				frames = Paths.getSparrowAtlas(notePathLol, 'shared');
 
 				animation.addByPrefix('greenScroll', 'green0');
 				animation.addByPrefix('redScroll', 'red0');
 				animation.addByPrefix('blueScroll', 'blue0');
 				animation.addByPrefix('purpleScroll', 'purple0');
-				animation.addByPrefix('whiteScroll', 'white0');
-				animation.addByPrefix('yellowScroll', 'yellow0');
-				animation.addByPrefix('violetScroll', 'violet0');
-				animation.addByPrefix('blackScroll', 'black0');
-				animation.addByPrefix('darkScroll', 'dark0');
+		
+				animation.addByPrefix('purpleholdend', 'pruple end hold');
+				animation.addByPrefix('greenholdend', 'green hold end');
+				animation.addByPrefix('redholdend', 'red hold end');
+				animation.addByPrefix('blueholdend', 'blue hold end');
+		
+				animation.addByPrefix('purplehold', 'purple hold piece');
+				animation.addByPrefix('greenhold', 'green hold piece');
+				animation.addByPrefix('redhold', 'red hold piece');
+				animation.addByPrefix('bluehold', 'blue hold piece');
+	
+				setGraphicSize(Std.int(width * noteSize));
+				updateHitbox();
+				antialiasing = noteStyle != '3D';
+			
+			case 'shape':
+				frames = Paths.getSparrowAtlas(notePathLol, 'shared');
 
+				animation.addByPrefix('greenScroll', 'green0');
+				animation.addByPrefix('redScroll', 'red0');
+				animation.addByPrefix('blueScroll', 'blue0');
+				animation.addByPrefix('purpleScroll', 'purple0');
+		
+				animation.addByPrefix('purplehold', 'purple hold piece');
+				animation.addByPrefix('greenhold', 'green hold piece');
+				animation.addByPrefix('redhold', 'red hold piece');
+				animation.addByPrefix('bluehold', 'blue hold piece');
+
+				animation.addByPrefix('purpleholdend', 'purple hold piece');
+				animation.addByPrefix('greenholdend', 'green hold piece');
+				animation.addByPrefix('redholdend', 'red hold piece');
+				animation.addByPrefix('blueholdend', 'blue hold piece');
+
+				setGraphicSize(Std.int(width * noteSize));
+				updateHitbox();
+				antialiasing = false;
+
+			case 'text':
+				frames = Paths.getSparrowAtlas('ui/alphabet');
+
+				var noteColors = ['purple', 'blue', 'green', 'red'];
+	
+				var boldLetters:Array<String> = new Array<String>();
+	
+				for (frameName in frames.frames)
+				{
+					if (frameName.name.contains('bold'))
+					{
+						boldLetters.push(frameName.name);
+					}
+				}
+				var randomFrame = boldLetters[new FlxRandom().int(0, boldLetters.length - 1)];
+				var prefix = randomFrame.substr(0, randomFrame.length - 4);
+				for (note in noteColors)
+				{
+					animation.addByPrefix('${note}Scroll', prefix, 24);
+				}
+				setGraphicSize(Std.int(width * 1.2));
+				updateHitbox();
+				antialiasing = true;
+				noteOffset = -(width - 78);
+
+			case 'guitarHero':
+				frames = Paths.getSparrowAtlas('notes/NOTEGH_assets', 'shared');
+
+				animation.addByPrefix('greenScroll', 'A Note');
+				animation.addByPrefix('greenhold', 'A Hold Piece');
+				animation.addByPrefix('greenholdend', 'A Hold End');
+
+
+				animation.addByPrefix('redScroll', 'B Note');
+				animation.addByPrefix('redhold', 'B Hold Piece');
+				animation.addByPrefix('redholdend', 'B Hold End');
+
+				animation.addByPrefix('yellowScroll', 'C Note');
+				animation.addByPrefix('yellowhold', 'C Hold Piece');
+				animation.addByPrefix('yellowholdend', 'C Hold End');
+
+				animation.addByPrefix('blueScroll', 'D Note');
+				animation.addByPrefix('bluehold', 'D Hold Piece');
+				animation.addByPrefix('blueholdend', 'D Hold End');
+
+				animation.addByPrefix('orangeScroll', 'E Note');
+				animation.addByPrefix('orangehold', 'E Hold Piece');
+				animation.addByPrefix('orangeholdend', 'E Hold End');
+
+				setGraphicSize(Std.int(width * noteSize));
+				updateHitbox();
+				antialiasing = true;
+			case 'phone' | 'phone-alt':
+				if (!isSustainNote)
+				{
+					frames = Paths.getSparrowAtlas('notes/NOTE_phone', 'shared');
+				}
+				else
+				{
+					frames = Paths.getSparrowAtlas('notes/NOTE_assets', 'shared');
+				}
+				animation.addByPrefix('greenScroll', 'green0');
+				animation.addByPrefix('redScroll', 'red0');
+				animation.addByPrefix('blueScroll', 'blue0');
+				animation.addByPrefix('purpleScroll', 'purple0');
 
 				animation.addByPrefix('purpleholdend', 'pruple end hold');
 				animation.addByPrefix('greenholdend', 'green hold end');
 				animation.addByPrefix('redholdend', 'red hold end');
 				animation.addByPrefix('blueholdend', 'blue hold end');
-				animation.addByPrefix('whiteholdend', 'white hold end');
-				animation.addByPrefix('yellowholdend', 'yellow hold end');
-				animation.addByPrefix('violetholdend', 'violet hold end');
-				animation.addByPrefix('blackholdend', 'black hold end');
-				animation.addByPrefix('darkholdend', 'dark hold end');
-
+		
 				animation.addByPrefix('purplehold', 'purple hold piece');
 				animation.addByPrefix('greenhold', 'green hold piece');
 				animation.addByPrefix('redhold', 'red hold piece');
 				animation.addByPrefix('bluehold', 'blue hold piece');
-				animation.addByPrefix('whitehold', 'white hold piece');
-				animation.addByPrefix('yellowhold', 'yellow hold piece');
-				animation.addByPrefix('violethold', 'violet hold piece');
-				animation.addByPrefix('blackhold', 'black hold piece');
-				animation.addByPrefix('darkhold', 'dark hold piece');
 
-				setGraphicSize(Std.int(width * noteScale));
+				LocalScrollSpeed = 1.08;
+				
+				setGraphicSize(Std.int(width * noteSize));
 				updateHitbox();
 				antialiasing = true;
+				
+				noteOffset = 20;
+
 		}
-		else
+		var str:String = PlayState.SONG.song.toLowerCase();
+		if (isInState('PlayState'))
 		{
-			switch (daStage)
+			var state:PlayState = cast(FlxG.state, PlayState);
+			if (state.localFunny == CharacterFunnyEffect.Dave)
 			{
-				default:
-				var dumbasspath:String = 'NOTE_assets';
-
-				    switch(noteStyle)
-				    {
-						case 'phone':
-							dumbasspath = 'NOTE_phone';
-						default:
-							dumbasspath = 'NOTE_assets';
-					}
-					frames = Paths.getSparrowAtlas(dumbasspath);
-
-					animation.addByPrefix('greenScroll', 'green0');
-					animation.addByPrefix('redScroll', 'red0');
-					animation.addByPrefix('blueScroll', 'blue0');
-					animation.addByPrefix('purpleScroll', 'purple0');
-					animation.addByPrefix('whiteScroll', 'white0');
-					animation.addByPrefix('yellowScroll', 'yellow0');
-					animation.addByPrefix('violetScroll', 'violet0');
-					animation.addByPrefix('blackScroll', 'black0');
-					animation.addByPrefix('darkScroll', 'dark0');
-	
-	
-					animation.addByPrefix('purpleholdend', 'pruple end hold');
-					animation.addByPrefix('greenholdend', 'green hold end');
-					animation.addByPrefix('redholdend', 'red hold end');
-					animation.addByPrefix('blueholdend', 'blue hold end');
-					animation.addByPrefix('whiteholdend', 'white hold end');
-					animation.addByPrefix('yellowholdend', 'yellow hold end');
-					animation.addByPrefix('violetholdend', 'violet hold end');
-					animation.addByPrefix('blackholdend', 'black hold end');
-					animation.addByPrefix('darkholdend', 'dark hold end');
-	
-					animation.addByPrefix('purplehold', 'purple hold piece');
-					animation.addByPrefix('greenhold', 'green hold piece');
-					animation.addByPrefix('redhold', 'red hold piece');
-					animation.addByPrefix('bluehold', 'blue hold piece');
-					animation.addByPrefix('whitehold', 'white hold piece');
-					animation.addByPrefix('yellowhold', 'yellow hold piece');
-					animation.addByPrefix('violethold', 'violet hold piece');
-					animation.addByPrefix('blackhold', 'black hold piece');
-					animation.addByPrefix('darkhold', 'dark hold piece');
-	
-					setGraphicSize(Std.int(width * noteScale));
-						updateHitbox();
-					antialiasing = true;
+				str = 'cheating';
 			}
 		}
-		
-		var frameN:Array<String> = ['purple', 'blue', 'green', 'red'];
-		if (mania == 1) frameN = ['purple', 'green', 'red', 'yellow', 'blue', 'dark'];
-		else if (mania == 2) frameN = ['purple', 'blue', 'green', 'red', 'white', 'yellow', 'violet', 'black', 'dark'];
-
-		if (PlayState.SONG.song.toLowerCase() == 'cheating' && FlxG.save.data.modchart)
-		{
-			if (mania == 0) {
-				switch (noteData)
-				{
-					case 0:
-						x += swagWidth * 3;
-						notetolookfor = 3;
-						animation.play('purpleScroll');
-					case 1:
-						x += swagWidth * 1;
-						notetolookfor = 1;
-						animation.play('blueScroll');
-					case 2:
-						x += swagWidth * 0;
-						notetolookfor = 0;
-						animation.play('greenScroll');
-					case 3:
-						notetolookfor = 2;
-						x += swagWidth * 2;
-						animation.play('redScroll');
-				}
-			}
-			else if (mania == 1) {
-				switch (noteData)
-				{
-					case 0:
-						x += swagWidth * 5;
-						notetolookfor = 5;
-						animation.play('purpleScroll');
-					case 1:
-						x += swagWidth * 3;
-						notetolookfor = 3;
-						animation.play('greenScroll');
-					case 2:
-						notetolookfor = 1;
-						x += swagWidth * 1;
-						animation.play('redScroll');
-					case 3:
-						notetolookfor = 2;
-						x += swagWidth * 2;
-						animation.play('yellowScroll');
-					case 4:
-						x += swagWidth * 0;
-						notetolookfor = 0;
-						animation.play('blueScroll');
-					case 5:
-						x += swagWidth * 4;
-						notetolookfor = 4;
-						animation.play('darkScroll');
-				}
-			}
-			else {
-				switch (noteData)
-				{
-					case 0:
-						x += swagWidth * 5;
-						notetolookfor = 5;
-						animation.play('purpleScroll');
-					case 1:
-						x += swagWidth * 1;
-						notetolookfor = 1;
-						animation.play('blueScroll');
-					case 2:
-						x += swagWidth * 7;
-						notetolookfor = 7;
-						animation.play('greenScroll');
-					case 3:
-						notetolookfor = 3;
-						x += swagWidth * 3;
-						animation.play('redScroll');
-					case 4:
-						x += swagWidth * 0;
-						notetolookfor = 0;
-						animation.play('whiteScroll');
-					case 5:
-						x += swagWidth * 2;
-						notetolookfor = 2;
-						animation.play('yellowScroll');
-					case 6:
-						x += swagWidth * 8;
-						notetolookfor = 8;
-						animation.play('violetScroll');
-					case 7:
-						x += swagWidth * 6;
-						notetolookfor = 6;
-						animation.play('blackScroll');
-					case 8:
-						notetolookfor = 4;
-						x += swagWidth * 4;
-						animation.play('darkScroll');
-				}
-			}
-
-			if (!isSustainNote) {
-				flipY = (Math.round(Math.random()) == 0); //fuck you
-				flipX = (Math.round(Math.random()) == 1);
-			}
-		}
-		else
-		{
-			x += swagWidth * (noteData % Main.keyAmmo[mania]);
-			notetolookfor = noteData % Main.keyAmmo[mania];
-			animation.play(frameN[noteData % Main.keyAmmo[mania]] + 'Scroll');
-		}
-
-		switch (PlayState.SONG.song.toLowerCase())
+		switch (str)
 		{
 			case 'cheating':
-				if (Type.getClassName(Type.getClass(FlxG.state)).contains("PlayState") && FlxG.save.data.modchart)
+				switch (originalType)
 				{
-					var state:PlayState = cast(FlxG.state,PlayState);
-					InPlayState = true;
-					if (musthit)
-					{
-						state.playerStrums.forEach(function(spr:StrumNote)
-						{
-							if (spr.ID == notetolookfor)
-							{
-								x = spr.x;
-								MyStrum = spr;
-							}
-						});
-					}
-					else
-					{
-						state.dadStrums.forEach(function(spr:FlxSprite)
-						{
-							if (spr.ID == notetolookfor)
-							{
-									x = spr.x;
-									MyStrum = spr;
-								}
-							});
-					}
+					case 0:
+						x += swagWidth * 3;
+						notetolookfor = 3;
+						animation.play('purpleScroll');
+					case 1:
+						x += swagWidth * 1;
+						notetolookfor = 0;
+						animation.play('blueScroll');
+					case 2:
+						x += swagWidth * 0;
+						notetolookfor = 1;
+						animation.play('greenScroll');
+					case 3:
+						notetolookfor = 2;
+						x += swagWidth * 2;
+						animation.play('redScroll');
 				}
+				flipY = (Math.round(Math.random()) == 0); // fuck you
+				flipX = (Math.round(Math.random()) == 1);
+			default:
+				x += swagWidth * originalType;
+				notetolookfor = originalType;
+
+				animation.play('${notes[originalType]}Scroll');
 		}
-		if ((PlayState.SONG.song.toLowerCase() == 'unfairness' || PlayState.SONG.song.toLowerCase() == 'unfair-bambi-break-phone') && FlxG.save.data.modchart)
+		if (isInState('PlayState'))
+		{
+			SearchForStrum(musthit);
+		}
+		if (PlayState.SONG.song.toLowerCase() == 'unfairness')
 		{
 			var rng:FlxRandom = new FlxRandom();
-			if (rng.int(0,120) == 1)
+			if (rng.int(0, 120) == 1)
 			{
 				LocalScrollSpeed = 0.1;
 			}
 			else
 			{
-				LocalScrollSpeed = rng.float(1,3);
+				LocalScrollSpeed = rng.float(1, 3);
 			}
-			if (rng.int(0,120) == 1)
+		}
+		if (PlayState.SONG.song.toLowerCase() == 'exploitation')
+		{
+			var rng:FlxRandom = new FlxRandom();
+			if (rng.int(0, 484) == 1)
 			{
-				localSpreadX = rng.float(0.1,0.5);
-				localSpreadY = rng.float(0.1,0.5);
-			}
-			else if (rng.int(0,60) == 1)
-			{
-				if (rng.bool()) {
-					localSpreadX = rng.float(0.1,0.5);
-					localSpreadY = rng.float(1,3);
-				}
-				else {
-					localSpreadY = rng.float(0.1,0.5);
-					localSpreadX = rng.float(1,3);
-				}
+				LocalScrollSpeed = 0.1;
 			}
 			else
 			{
-				localSpreadX = rng.float(1,3);
-				localSpreadY = rng.float(1,3);
+				LocalScrollSpeed = rng.float(2.9, 3.6);
 			}
 		}
-		
-
-		// trace(prevNote);
-
-		// we make sure its downscroll and its a SUSTAIN NOTE (aka a trail, not a note)
-		// and flip it so it doesn't look weird.
-		// THIS DOESN'T FUCKING FLIP THE NOTE, CONTRIBUTERS DON'T JUST COMMENT THIS OUT JESUS
-		/* if (FlxG.save.data.downscroll && sustainNote) 
-			flipY = true; */
 
 		if (isSustainNote && prevNote != null)
 		{
-			noteScore * 0.2;
-			alpha = 0.6;
-			if (FlxG.save.data.downscroll) flipY = true;
+			alphaMult = 0.6;
 
-			x += width / 2;
+			noteOffset += width / 2;
 
-			animation.play(frameN[noteData % Main.keyAmmo[mania]] + 'holdend');
+			animation.play('${notes[noteData]}holdend');
+
+			if (PlayState.scrollType == 'downscroll')
+			{
+				flipY = true;
+			}
 
 			updateHitbox();
 
-			x -= width / 2;
-
-			if (PlayState.curStage.startsWith('school'))
-				x += 30;
+			noteOffset -= width / 2;
 
 			if (prevNote.isSustainNote)
 			{
-				prevNote.animation.play(frameN[prevNote.noteData] + 'hold');
-				prevNote.scale.y *= Conductor.stepCrochet / 100 * 1.5 * PlayState.SONG.speed * (0.7 / noteScale);
-				prevNote.updateHitbox();
-				// prevNote.setGraphicSize();
+				prevNote.animation.play('${notes[prevNote.noteData]}hold');
+
+				if (noteStyle != 'shape')
+				{
+					prevNote.scale.y *= (Conductor.stepCrochet / 100) * PlayState.SONG.speed * 1.5;
+					prevNote.updateHitbox();
+				}
+				else
+				{
+					//INCOMPLETE
+					prevNote.scale.y *= (Conductor.stepCrochet / 100) * PlayState.SONG.speed * 0.75;
+					prevNote.scale.x *= (Conductor.stepCrochet / 100) * PlayState.SONG.speed * 0.5;
+					prevNote.offset.y += prevNote.height / 3;
+					prevNote.updateHitbox();
+				}
+			}
+		}
+		if (noteStyle == 'shape')
+		{
+			switch (noteData)
+			{
+				case 1:
+					noteOffset += 4;
+				case 2:
+					noteOffset += 10;
+			}
+			if (isSustainNote)
+			{
+				alphaMult = 1;
+				noteOffset += (width / 2);
 			}
 		}
 	}
-
-	public var originalHeightForCalcs:Float = 6;
 
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
 
-
 		if (MyStrum != null)
 		{
-			x = MyStrum.x + (isSustainNote ? width : 0);
+			GoToStrum(MyStrum);
 		}
 		else
 		{
-			if (InPlayState)
+			if (isInState('PlayState'))
 			{
-				var state:PlayState = cast(FlxG.state,PlayState);
-				if (mustPress)
-					{
-						state.playerStrums.forEach(function(spr:StrumNote)
-						{
-							if (spr.ID == notetolookfor)
-							{
-								x = spr.x;
-								MyStrum = spr;
-							}
-						});
-					}
-					else
-					{
-						state.dadStrums.forEach(function(spr:FlxSprite)
-							{
-								if (spr.ID == notetolookfor)
-								{
-									x = spr.x;
-									MyStrum = spr;
-								}
-							});
-					}
+				SearchForStrum(mustPress);
 			}
 		}
-		if (mustPress)
+		if (mustPress && isInState('PlayState'))
 		{
 			// The * 0.5 is so that it's easier to hit them too late, instead of too early
 			if (strumTime > Conductor.songPosition - Conductor.safeZoneOffset
 				&& strumTime < Conductor.songPosition + (Conductor.safeZoneOffset * 0.5))
 				canBeHit = true;
-			else
+			else 
 				canBeHit = false;
 
 			if (strumTime < Conductor.songPosition - Conductor.safeZoneOffset && !wasGoodHit)
@@ -468,9 +418,61 @@ class Note extends FlxSprite
 
 		if (tooLate)
 		{
-			if (alpha > 0.3)
-				alpha = 0.3;
-			
+			alphaMult = 0.3;
+		}
+	}
+	public function GoToStrum(strum:StrumNote)
+	{
+		x = strum.x + noteOffset;
+		alpha = strum.alpha * alphaMult;
+
+		if (strum.pressingKey5)
+		{
+			if (noteStyle != "shape")
+			{
+				alpha *= 0.5;
+			}
+		}
+		else
+		{
+			if (noteStyle == "shape")
+			{
+				alpha *= 0.5;
+			}
+		}
+	}
+
+	public function isInState(state:String)
+	{
+		return Type.getClassName(Type.getClass(FlxG.state)).contains(state);
+	}
+
+	public function SearchForStrum(musthit:Bool)
+	{
+		var state:PlayState = cast(FlxG.state, PlayState);
+		if (musthit)
+		{
+			state.playerStrums.forEach(function(spr:StrumNote)
+			{
+				if (spr.ID == notetolookfor)
+				{
+					GoToStrum(spr);
+					MyStrum = spr;
+					return;
+				}
+			});
+		}
+		else
+		{
+			state.dadStrums.forEach(function(spr:StrumNote)
+			{
+				if (spr.ID == notetolookfor)
+				{
+					GoToStrum(spr);
+					MyStrum = spr;
+					return;
+				}
+			});
 		}
 	}
 }
