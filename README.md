@@ -8,10 +8,6 @@ this is dave
 say hi to dave
 please say hi to him
 
-say hi to dave
-please say hi to him
-
-
 ## About the mod
 Powered by a heavily modified version of Kade Engine, The mod includes lots of additional improvements such as
 - OpenGL Shaders
