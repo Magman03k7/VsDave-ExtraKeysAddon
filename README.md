@@ -3,7 +3,7 @@
 # VS DAVE (DAVE ENGINE)
 this is dave
 
-<img src="https://cdn.discordapp.com/attachments/892140166309892136/905267141299802152/dorve_reale.png" width="211" height="373">
+<img src="https://cdn.discordapp.com/attachments/892140166309892136/905267141299802152/KadeEngineWitBackground.png" width="211" height="373">
 
 say hi to dave
 please say hi to him
