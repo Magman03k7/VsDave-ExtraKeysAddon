@@ -1,6 +1,6 @@
 jobs:
   build:
-    runs-on: [ubuntu-latest, macos-latest]
+    runs-on: windows-latest
     steps:
       - uses: krdlab/setup-haxe@v1
         with:
