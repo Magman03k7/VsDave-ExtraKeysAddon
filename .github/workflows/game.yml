@@ -31,8 +31,8 @@ jobs:
 
       # Runs a set of commands using the runners shell
       - name: Upload a Build Artifact
-        run: actions/upload-artifact@v3.1.1
-with:
-    name: Windows
-    path: .next/
-
+        uses: actions/upload-artifact@v3
+        with:
+          name: Windows
+          path: .next/
+  
