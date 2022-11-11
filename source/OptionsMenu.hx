@@ -183,14 +183,6 @@ class OptionsMenu extends MusicBeatState
 						ctrl.itemType = 'Vertical';
 						grpControls.add(ctrl);
 					case 10:
-						FlxG.save.data.practicemode = !FlxG.save.data.practicemode;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Practice Mode " + (!FlxG.save.data.practicemode ? "off" : "on"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 10;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 11:
 						FlxG.save.data.botplay = !FlxG.save.data.botplay;
 						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Bot Play " + (!FlxG.save.data.botplay ? "off" : "on"), true, false);
 						ctrl.isMenuItem = true;
