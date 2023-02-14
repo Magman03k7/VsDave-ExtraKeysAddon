@@ -47,25 +47,54 @@ class MusicPlayerState extends MusicBeatState
   
     override function create()
     {
+        FlxG.autoPause = false;
         var initSonglist = CoolUtil.coolTextFile(Paths.txt('djSonglist')); //ah yeah dj song list
         for (i in 0...initSonglist.length)
         {
             var splitstring:Array<String> = initSonglist[i].split(",");
 
-            songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",false,true));
+            songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",splitstring[1] != 'vs-dave-rap'));
 
-            if (splitstring[4] != "notcanon")
+            if (splitstring[0] != "external" && splitstring[1] != 'vs-dave-rap') //remove this later
             {
-                songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",true,true));
+                songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",false));
             }
-
-            if (splitstring[0] != "external") //remove this later
+        }
+        var secretSongs:Array<Dynamic> = [
+            ['supernovae', 'bambi-joke'], ['glitch', 'bambi-joke'], ['master', 'bambi-joke', true],
+            ['cheating', 'bambi-3d'], ['unfairness', 'bambi-unfair'], ['exploitation', 'expunged'],
+            ['kabunga', 'exbungo'],
+            ['roofs', 'baldi'],
+            ['recursed', 'recurser'],
+            ['vs-dave-rap-two', 'dave-cool'],  
+        ];
+        for (i in 0...secretSongs.length)
+        {
+            var unlockSong = false;
+            unlockSong = switch (secretSongs[i][0].toLowerCase())
             {
-                songs.push(new PlaySongMetadata(splitstring[1], splitstring[0] == "external", splitstring[2],splitstring[3] == "bad",false,false));
+                case 'supernovae', 'glitch', 'master': FlxG.save.data.hasPlayedMasterWeek;
+                case 'cheating':  FlxG.save.data.cheatingFound;
+                case 'unfairness': FlxG.save.data.unfairnessFound;
+                case 'exploitation': FlxG.save.data.exploitationFound;
+                case 'kabunga': FlxG.save.data.exbungoFound;
+                case 'roofs': FlxG.save.data.roofsUnlocked;
+                case 'recursed': FlxG.save.data.recursedUnlocked;
+                case 'vs-dave-rap-two': FlxG.save.data.vsDaveRapTwoFound;
+                default: false;
+            }
+            if (unlockSong)
+            {
+                var bad = secretSongs[i][2] != null ? secretSongs[i][2] : false;
+                songs.push(new PlaySongMetadata(secretSongs[i][0], false, secretSongs[i][1], bad, secretSongs[i][0] != 'vs-dave-rap-two'));
+                if (secretSongs[i][0] != 'vs-dave-rap-two')
+                {
+                    songs.push(new PlaySongMetadata(secretSongs[i][0], false, secretSongs[i][1], bad, false));
+                }
             }
         }
 
-        bg = new FlxSprite().loadGraphic(Paths.image('backgrounds/SUSSUS AMOGUS'));
+        bg = new FlxSprite().loadGraphic(Paths.image('backgrounds/Aadsta'));
         bg.loadGraphic(MainMenuState.randomizeBG());
         bg.color = 0xFFFD719B;
 		add(bg);
@@ -79,15 +108,14 @@ class MusicPlayerState extends MusicBeatState
 
         for (i in 0...songs.length)
         {
-            var songText:Alphabet = new Alphabet(0, 0, songs[i].songName + (songs[i].hasShaggyVocals ? "-Shaggy" : songs[i].hasVocals ? "" : "-Inst"), true, false);
+            var songText:Alphabet = new Alphabet(0, 0, songs[i].songName + (songs[i].hasVocals ? "" : ((songs[i].songName != 'vs-dave-rap-two' && songs[i].songName != 'vs-dave-rap') ? "-Inst" : "")), true, false);
             songText.isMenuItem = true;
-            //songText.SwitchXandY = true; this is stinky and dumb
             songText.targetY = i;
             grpSongs.add(songText);
 
             var icon:HealthIcon = new HealthIcon(songs[i].songCharacter);
-            icon.sprTracker = songText;
-            icon.animation.curAnim.curFrame = songs[i].ShowBadIcon ? 1 : 0;
+            icon.sprTracker = songText;			
+			icon.changeState(songs[i].ShowBadIcon ? 'losing' : 'normal');
 
             iconArray.push(icon);
             add(icon);
@@ -95,15 +123,15 @@ class MusicPlayerState extends MusicBeatState
         }
 
         //create hp bar for pico funny
-        healthBarBG = new FlxSprite(0, 50).loadGraphic(Paths.image('healthBar'));
+        healthBarBG = new FlxSprite(0, 50).loadGraphic(Paths.image('ui/healthBar'));
 		healthBarBG.screenCenter(X);
 		healthBarBG.scrollFactor.set();
 		add(healthBarBG);
 
 		healthBar = new FlxBar(healthBarBG.x + 4, healthBarBG.y + 4, RIGHT_TO_LEFT, Std.int(healthBarBG.width - 8), Std.int(healthBarBG.height - 8), this, 'playdist', 0, 1);
 		healthBar.scrollFactor.set();
-		healthBar.createFilledBar(0xFFFF0000, 0xFF66FF33);
-		add(healthBar);
+		healthBar.createFilledBar(FlxColor.WHITE, FlxColor.BLACK);
+		insert(members.indexOf(healthBarBG), healthBar);
 
         iconP1 = new HealthIcon("bf", true);
 		iconP1.y = healthBar.y - (iconP1.height / 2);
@@ -113,9 +141,12 @@ class MusicPlayerState extends MusicBeatState
 		iconP2.y = healthBar.y - (iconP2.height / 2);
 		add(iconP2);
 
-        barText = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 150, healthBarBG.y + 50, 0, "", 20);
-		barText.setFormat(Paths.font("vcr.ttf"), 16, FlxColor.WHITE, RIGHT, FlxTextBorderStyle.OUTLINE,FlxColor.BLACK);
+        barText = new FlxText(healthBarBG.x + healthBarBG.width / 2 - 150, healthBarBG.y + healthBarBG.height + 5, 0, "", 20);
+		barText.setFormat(Paths.font("comic.ttf"), 20, FlxColor.WHITE, CENTER, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
 		barText.scrollFactor.set();
+        barText.borderSize = 1.5;
+		barText.antialiasing = true;
+        barText.screenCenter(X);
 		add(barText);
 
         HideBar();
@@ -123,9 +154,17 @@ class MusicPlayerState extends MusicBeatState
         super.create();
     }
 
+    var lastText:String = "";
+
     override function update(elapsed:Float)
     {
         super.update(elapsed);
+
+        if (barText != null && barText.text != lastText)
+        {
+            barText.screenCenter(X);
+            lastText = barText.text;
+        }
 
         var upP = controls.UP_P;
 		var downP = controls.DOWN_P;
@@ -149,18 +188,8 @@ class MusicPlayerState extends MusicBeatState
             {
                 #if desktop
                 DiscordClient.changePresence('In The OST Menu', '\nListening To: ' +
-                    CoolUtil.formatString(songs[curSelected].songName) + ' | ' + 
+                    CoolUtil.formatString(songs[curSelected].songName, '-') + ' | ' + 
                     currentTimeFormatted + ' / ' + lengthFormatted,
-                    null);
-                #end
-                
-            }
-            else if (songs[curSelected].hasShaggyVocals)
-            {
-                #if desktop
-                DiscordClient.changePresence('In The OST Menu', '\nListening To: ' +
-                    CoolUtil.formatString(songs[curSelected].songName) + ' Shaggy Cover | ' +
-                    currentTimeFormatted + ' / ' + lengthFormatted, 
                     null);
                 #end
             }
@@ -168,7 +197,7 @@ class MusicPlayerState extends MusicBeatState
             {
                 #if desktop
                 DiscordClient.changePresence('In The OST Menu', '\nListening To: ' +
-                    CoolUtil.formatString(songs[curSelected].songName) + ' Instrumental | ' +
+                    CoolUtil.formatString(songs[curSelected].songName, '-') + ' Instrumental | ' +
                     currentTimeFormatted + ' / ' + lengthFormatted, 
                     null);
                 #end
@@ -176,14 +205,14 @@ class MusicPlayerState extends MusicBeatState
         }
 
         if (healthBar.percent < 20)
-			iconP1.animation.curAnim.curFrame = 1;
+			iconP1.changeState('losing');
 		else
-			iconP1.animation.curAnim.curFrame = 0;
+			iconP1.changeState('normal');
 
 		if (healthBar.percent > 80)
-			iconP2.animation.curAnim.curFrame = 1;
+			iconP2.changeState('losing');
 		else
-			iconP2.animation.curAnim.curFrame = 0;
+			iconP2.changeState('normal');
 
 		if (upP)
 		{
@@ -250,7 +279,6 @@ class MusicPlayerState extends MusicBeatState
 
                     item.alpha = 0.6;
                     // item.setGraphicSize(Std.int(item.width * 0.8));
-
                     if (item.targetY == 0)
                     {
                        item.alpha = 1;
@@ -260,7 +288,8 @@ class MusicPlayerState extends MusicBeatState
             }
             else
             {
-                FlxG.switchState(new ExtrasMenuState());
+                FlxG.autoPause = true;
+                FlxG.switchState(new MainMenuState());
             }
         }
         if (accepted)
@@ -273,7 +302,6 @@ class MusicPlayerState extends MusicBeatState
                     currentlyplaying = true;
                     if (songs[curSelected].hasVocals)
                     {
-                        Main.shaggyVoice = songs[curSelected].hasShaggyVocals;
                         CurVocals = new FlxSound().loadEmbedded(Paths.voices(songs[curSelected].songName));
                     }
                     else
@@ -349,16 +377,13 @@ class MusicPlayerState extends MusicBeatState
 
     function ShowBar(char:String)
     {
-        var bfchar = "bf";
-        if (songs[curSelected].hasShaggyVocals) bfchar = "shaggy";
         iconP1.alpha = 0;
         iconP2.alpha = 0;
         barText.alpha = 0;
         healthBar.alpha = 0;
         healthBarBG.alpha = 0;
-        iconP1.animation.play(bfchar);
         iconP1.visible = true;
-        iconP2.animation.play(char);
+        iconP2.changeIcon(char);
         iconP2.visible = true;
         barText.visible = true;
         healthBar.visible = true;
@@ -428,16 +453,14 @@ class PlaySongMetadata
 	public var ExternalSong:Bool = false;
     public var ShowBadIcon:Bool = false;
 	public var songCharacter:String = "";
-    public var hasShaggyVocals:Bool = true;
     public var hasVocals:Bool = true;
 
-	public function new(song:String, external:Bool, songCharacter:String, bad:Bool, shaggyVocal:Bool, vocal:Bool)
+	public function new(song:String, external:Bool, songCharacter:String, bad:Bool, vocal:Bool)
 	{
 		this.songName = song;
 		this.ExternalSong = external;
 		this.songCharacter = songCharacter;
         this.ShowBadIcon = bad;
-        this.hasShaggyVocals = shaggyVocal;
         this.hasVocals = vocal;
 	}
 }

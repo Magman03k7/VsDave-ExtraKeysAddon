@@ -1,13 +1,13 @@
-# RIGHT NOW THE MODS FOLDER DOES NOT WORK ENTIRELY JUST YET!!!
-## THIS IS WORK IN PROGRESS!!!
+# Compiling
+Just follow a basic [compiling tutorial.](https://github.com/ninjamuffin99/Funkin#build-instructions)
+Instead of using Haxe 4.1.5, use the [latest Haxe](https://haxe.org/download/), the issues mentioned in the guide are already fixed.
 
-# QUICK AND DIRTY MOD GUIDE
+# Modding
+Just edit the source code it's not that hard (unless you can't code)...
 
-With the 0.2.6 update, I added a bit of a slightly nicer mod support backend.
+For the non-coding people, you can mod the characters and add your own, since the positions are not hardcoded anymore.
 
-It's POLYMOD, which is made by Lars Doucet: https://github.com/larsiusprime/polymod
 
-You may have noticed that there's a new folder in the assets. MODS. Within it you will see 2 files. modList.txt, and a folder called introMod.
-modList.txt will load any folder into the game. Put the folder you want to load into a new line in modList.txt, and reboot the game.
 
-Now you may be wondering, what do I put in the folder? Well later down it'll get a bit more complicated, especially as I'll make the IN-GAME mod loader nicer.
+Psst... Don't tell anyone, but i'm working on making an official version of the engine that is 99% moddable.
+-Erizur

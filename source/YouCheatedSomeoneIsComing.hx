@@ -10,7 +10,7 @@ import flixel.util.FlxTimer;
 /**
  * scary!!!
  */
-class YouCheatedSomeoneIsComing extends MusicBeatState
+class YouCheatedSomeoneIsComing extends FlxState //why did this extend music beat state?
 {
 	
 	public function new() 
@@ -24,7 +24,7 @@ class YouCheatedSomeoneIsComing extends MusicBeatState
 		if(FlxG.sound.music != null)
 			FlxG.sound.music.stop();
 		FlxG.sound.playMusic(Paths.music('badEnding'),1,true);
-		var spooky:FlxSprite = new FlxSprite(0, 0).loadGraphic(Paths.image('dave/cheater_lol', "shared"));
+		var spooky:FlxSprite = new FlxSprite(0, 0).loadGraphic(Paths.image('dave/endings/cheater_lol', 'shared'));
         spooky.screenCenter();
         add(spooky);
 	}

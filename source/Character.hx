@@ -1,5 +1,8 @@
 package;
 
+import sys.FileSystem;
+import flixel.math.FlxPoint;
+import flixel.util.FlxColor;
 import flixel.addons.effects.chainable.FlxEffectSprite;
 import flixel.FlxG;
 import flixel.FlxSprite;
@@ -22,9 +25,13 @@ class Character extends FlxSprite
 
 	public var nativelyPlayable:Bool = false;
 
-	public var globaloffset:Array<Float> = [0,0];
-
-	public var char:Boyfriend;
+	public var globalOffset:Array<Float> = new Array<Float>();
+	public var offsetScale:Float = 1;
+	
+	public var barColor:FlxColor;
+	
+	public var canSing:Bool = true;
+	public var skins:Map<String, String> = new Map<String, String>();
 
 	public function new(x:Float, y:Float, ?character:String = "bf", ?isPlayer:Bool = false)
 	{
@@ -34,260 +41,17 @@ class Character extends FlxSprite
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 
-		var tex:FlxAtlasFrames;
+		skins.set('normal', curCharacter);
+		skins.set('recursed', 'bf-recursed');
+		skins.set('gfSkin', 'gf-none');
+		
 		antialiasing = true;
 
 		switch (curCharacter)
 		{
-			case 'gf':
-				// GIRLFRIEND CODE
-				tex = Paths.getSparrowAtlas('GF_assets');
-				frames = tex;
-				animation.addByPrefix('cheer', 'GF Cheer', 24, false);
-				animation.addByPrefix('singLEFT', 'GF left note', 24, false);
-				animation.addByPrefix('singRIGHT', 'GF Right Note', 24, false);
-				animation.addByPrefix('singUP', 'GF Up Note', 24, false);
-				animation.addByPrefix('singDOWN', 'GF Down Note', 24, false);
-				animation.addByIndices('sad', 'gf sad', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
-				animation.addByIndices('danceLeft', 'GF Dancing Beat', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-				animation.addByIndices('danceRight', 'GF Dancing Beat', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
-				animation.addByIndices('hairBlow', "GF Dancing Beat Hair blowing", [0, 1, 2, 3], "", 24);
-				animation.addByIndices('hairFall', "GF Dancing Beat Hair Landing", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "", 24, false);
-				animation.addByPrefix('scared', 'GF FEAR', 24);
-
-				addOffset('cheer');
-				addOffset('sad', -2, -2);
-				addOffset('danceLeft', 0, -9);
-				addOffset('danceRight', 0, -9);
-
-				addOffset("singUP", 0, 4);
-				addOffset("singRIGHT", 0, -20);
-				addOffset("singLEFT", 0, -19);
-				addOffset("singDOWN", 0, -20);
-				addOffset('hairBlow', 45, -8);
-				addOffset('hairFall', 0, -9);
-
-				addOffset('scared', -2, -17);
-
-				playAnim('danceRight');
-
-			case 'gf-christmas':
-				tex = Paths.getSparrowAtlas('christmas/gfChristmas');
-				frames = tex;
-				animation.addByPrefix('cheer', 'GF Cheer', 24, false);
-				animation.addByPrefix('singLEFT', 'GF left note', 24, false);
-				animation.addByPrefix('singRIGHT', 'GF Right Note', 24, false);
-				animation.addByPrefix('singUP', 'GF Up Note', 24, false);
-				animation.addByPrefix('singDOWN', 'GF Down Note', 24, false);
-				animation.addByIndices('sad', 'gf sad', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
-				animation.addByIndices('danceLeft', 'GF Dancing Beat', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-				animation.addByIndices('danceRight', 'GF Dancing Beat', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
-				animation.addByIndices('hairBlow', "GF Dancing Beat Hair blowing", [0, 1, 2, 3], "", 24);
-				animation.addByIndices('hairFall', "GF Dancing Beat Hair Landing", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "", 24, false);
-				animation.addByPrefix('scared', 'GF FEAR', 24);
-
-				addOffset('cheer');
-				addOffset('sad', -2, -2);
-				addOffset('danceLeft', 0, -9);
-				addOffset('danceRight', 0, -9);
-
-				addOffset("singUP", 0, 4);
-				addOffset("singRIGHT", 0, -20);
-				addOffset("singLEFT", 0, -19);
-				addOffset("singDOWN", 0, -20);
-				addOffset('hairBlow', 45, -8);
-				addOffset('hairFall', 0, -9);
-
-				addOffset('scared', -2, -17);
-
-				playAnim('danceRight');
-
-			case 'gf-pixel':
-				tex = Paths.getSparrowAtlas('weeb/gfPixel');
-				frames = tex;
-				animation.addByIndices('singUP', 'GF IDLE', [2], "", 24, false);
-				animation.addByIndices('danceLeft', 'GF IDLE', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
-				animation.addByIndices('danceRight', 'GF IDLE', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
-
-				if (!PlayState.curStage.startsWith('school'))
-				{
-					globaloffset[0] = -200;
-					globaloffset[1] = -175;
-				}
-				
-				addOffset('danceLeft', 0);
-				addOffset('danceRight', 0);
-
-				playAnim('danceRight');
-
-				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
-				updateHitbox();
-				antialiasing = false;
-
-			case 'dave':
-				// DAVE SHITE ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('dave/dave_sheet');
-				frames = tex;
-				animation.addByPrefix('idle', 'idleDance', 24, false);
-				animation.addByPrefix('singUP', 'Up', 24, false);
-				animation.addByPrefix('singRIGHT', 'Right', 24, false);
-				animation.addByPrefix('singDOWN', 'Down', 24, false);
-				animation.addByPrefix('singLEFT', 'Left', 24, false);
-	
-				addOffset('idle');
-				addOffset("singUP", 18, 12);
-				addOffset("singRIGHT", 5, -2);
-				addOffset("singLEFT", 29, 2);
-				addOffset("singDOWN", -5, 2);
-
-				playAnim('idle');
-			case 'dave-old':
-				// DAVE SHITE ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('dave/dave_old');
-				frames = tex;
-				animation.addByPrefix('idle', 'Dave idle dance', 24, false);
-				animation.addByPrefix('singUP', 'Dave Sing Note UP', 24, false);
-				animation.addByPrefix('singRIGHT', 'Dave Sing Note RIGHT', 24, false);
-				animation.addByPrefix('singDOWN', 'Dave Sing Note DOWN', 24, false);
-				animation.addByPrefix('singLEFT', 'Dave Sing Note LEFT', 24, false);
-	
-				addOffset('idle');
-				addOffset("singUP", 0, -3);
-				addOffset("singRIGHT", -1, 1);
-				addOffset("singLEFT", -3, 0);
-				addOffset("singDOWN", -1, -3);
-				globaloffset[1] = 100;
-
-				setGraphicSize(Std.int(width * 1.1));
-				updateHitbox();
-
-				playAnim('idle');
-			case 'dave-annoyed':
-				// DAVE SHITE ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('dave/Dave_insanity_lol');
-				frames = tex;
-				animation.addByPrefix('idle', 'Idle', 24, false);
-				animation.addByPrefix('singUP', 'Up', 24, false);
-				animation.addByPrefix('singRIGHT', 'Right', 24, false);
-				animation.addByPrefix('singDOWN', 'Down', 24, false);
-				animation.addByPrefix('singLEFT', 'Left', 24, false);
-				animation.addByPrefix('scared', 'Scared', 24, true);
-	
-				addOffset('idle');
-				addOffset("singUP", 3, 18);
-				addOffset("singRIGHT", 16, -18);
-				addOffset("singLEFT", 85, -12);
-				addOffset("singDOWN", 0, -34);
-				addOffset("scared", 0, -2);
-	
-				playAnim('idle');
-			case 'dave-annoyed-3d':
-				frames = Paths.getSparrowAtlas('dave/Dave_insanity_3d');
-				animation.addByPrefix('idle', 'DaveAngry idle dance', 24, false);
-				animation.addByPrefix('singUP', 'DaveAngry Sing Note UP', 24, false);
-				animation.addByPrefix('singRIGHT', 'DaveAngry Sing Note RIGHT', 24, false);
-				animation.addByPrefix('singDOWN', 'DaveAngry Sing Note DOWN', 24, false);
-				animation.addByPrefix('singLEFT', 'DaveAngry Sing Note LEFT', 24, false);
-		
-				addOffset('idle');
-				addOffset("singUP");
-				addOffset("singRIGHT");
-				addOffset("singLEFT");
-				addOffset("singDOWN");
-				globaloffset[0] = 150;
-				globaloffset[1] = 450; //this is the y
-				furiosityScale = 1.5;
-				setGraphicSize(Std.int(width / furiosityScale));
-			   updateHitbox();
-			   antialiasing = false;
-		
-				playAnim('idle');
-			case 'dave-3d-standing-bruh-what':
-				// DAVE SHITE ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('dave/local_disabled_man_regains_control_of_his_legs_after_turning_3d');
-				frames = tex;
-				animation.addByPrefix('idle', 'DaveAngry idle dance', 24, false);
-				animation.addByPrefix('singUP', 'DaveAngry Sing Note UP', 24, false);
-				animation.addByPrefix('singRIGHT', 'DaveAngry Sing Note RIGHT', 24, false);
-				animation.addByPrefix('singDOWN', 'DaveAngry Sing Note DOWN', 24, false);
-				animation.addByPrefix('singLEFT', 'DaveAngry Sing Note LEFT', 24, false);
-		
-				addOffset('idle', 7, 0);
-				addOffset("singUP", -14, 16);
-				addOffset("singRIGHT", 13, 23);
-				addOffset("singLEFT", 49, -9);
-				addOffset("singDOWN", 0, -10);
-				antialiasing = false;
-		
-				playAnim('idle');
-			case 'dave-angey':
-				// DAVE SHITE ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('dave/Dave_Furiosity');
-				frames = tex;
-				animation.addByPrefix('idle', 'IDLE', 24, false);
-				animation.addByPrefix('singUP', 'UP', 24, false);
-				animation.addByPrefix('singRIGHT', 'RIGHT', 24, false);
-				animation.addByPrefix('singDOWN', 'DOWN', 24, false);
-				animation.addByPrefix('singLEFT', 'LEFT', 24, false);
-		
-				addOffset('idle');
-				addOffset("singUP");
-				addOffset("singRIGHT");
-				addOffset("singLEFT");
-				addOffset("singDOWN");
-				setGraphicSize(Std.int(width * furiosityScale),Std.int(height * furiosityScale));
-				updateHitbox();
-				antialiasing = false;
-		
-				playAnim('idle');
-
-			case 'bambi-3d':
-				// BAMBI SHITE ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('dave/bambi_angryboy');
-				frames = tex;
-				animation.addByPrefix('idle', 'DaveAngry idle dance', 24, false);
-				animation.addByPrefix('singUP', 'DaveAngry Sing Note UP', 24, false);
-				animation.addByPrefix('singRIGHT', 'DaveAngry Sing Note RIGHT', 24, false);
-				animation.addByPrefix('singDOWN', 'DaveAngry Sing Note DOWN', 24, false);
-				animation.addByPrefix('singLEFT', 'DaveAngry Sing Note LEFT', 24, false);
-		
-				addOffset('idle');
-				addOffset("singUP", 20, -10);
-				addOffset("singRIGHT", 80, -20);
-				addOffset("singLEFT", 0, -10);
-				addOffset("singDOWN", 0, 10);
-				globaloffset[0] = 150;
-				globaloffset[1] = 450; //this is the y
-				setGraphicSize(Std.int(width / furiosityScale));
-				updateHitbox();
-				antialiasing = false;
-		
-				playAnim('idle');
-			case 'bambi-unfair':
-				// BAMBI SHITE ANIMATION LOADING CODE
-				tex = Paths.getSparrowAtlas('bambi/unfair_bambi');
-				frames = tex;
-				animation.addByPrefix('idle', 'idle', 24, false);
-				animation.addByPrefix('singUP', 'singUP', 24, false);
-				animation.addByPrefix('singRIGHT', 'singRIGHT', 24, false);
-				animation.addByPrefix('singDOWN', 'singDOWN', 24, false);
-				animation.addByPrefix('singLEFT', 'singLEFT', 24, false);
-		
-				addOffset('idle');
-				addOffset("singUP", 140, 70);
-				addOffset("singRIGHT", -180, -60);
-				addOffset("singLEFT", 250, 0);
-				addOffset("singDOWN", 150, 50);
-				globaloffset[0] = 150 * 1.3;
-				globaloffset[1] = 450 * 1.3; //this is the y
-				setGraphicSize(Std.int((width * 1.3) / furiosityScale));
-				updateHitbox();
-				antialiasing = false;
-		
-				playAnim('idle');
 			case 'bf':
-				var tex = Paths.getSparrowAtlas('BOYFRIEND');
-				frames = tex;
+				frames = Paths.getSparrowAtlas('characters/BOYFRIEND', 'shared');
+				
 				animation.addByPrefix('idle', 'BF idle dance', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
@@ -306,165 +70,87 @@ class Character extends FlxSprite
 				animation.addByPrefix('scared', 'BF idle shaking', 24);
 				animation.addByPrefix('hit', 'BF hit', 24, false);
 
-				addOffset('idle', -5);
-				addOffset("singUP", -29, 27);
-				addOffset("singRIGHT", -38, -7);
-				addOffset("singLEFT", 12, -6);
-				addOffset("singDOWN", -10, -50);
-				addOffset("singUPmiss", -29, 27);
-				addOffset("singRIGHTmiss", -30, 21);
-				addOffset("singLEFTmiss", 12, 24);
-				addOffset("singDOWNmiss", -11, -19);
-				addOffset("hey", 7, 4);
-				addOffset('firstDeath', 37, 11);
-				addOffset('deathLoop', 37, 5);
-				addOffset('deathConfirm', 37, 69);
-				addOffset('scared', -4);
+				loadOffsetFile(curCharacter);
+
+				skins.set('gfSkin', 'gf');
+				skins.set('3d', 'bf-3d');
+
+				barColor = FlxColor.fromRGB(49, 176, 209);
 
 				playAnim('idle');
 
 				nativelyPlayable = true;
 
 				flipX = true;
-			case 'tristan':
-				var tex = Paths.getSparrowAtlas('dave/TRISTAN');
-				frames = tex;
-				animation.addByPrefix('idle', 'BF idle dance', 24, false);
-				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
-				animation.addByPrefix('singUPmiss', 'BF NOTE UP MISS', 24, false);
-				animation.addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS', 24, false);
-				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
-				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
-				animation.addByPrefix('hey', 'BF HEY', 24, false);
-	
-				animation.addByPrefix('firstDeath', "BF dies", 24, false);
-				animation.addByPrefix('deathLoop', "BF Dead Loop", 24, true);
-				animation.addByPrefix('deathConfirm', "BF Dead confirm", 24, false);
-				animation.addByPrefix('dodge', "boyfriend dodge", 24, false);
-				animation.addByPrefix('scared', 'BF idle shaking', 24);
-				animation.addByPrefix('hit', 'BF hit', 24, false);
-	
-				addOffset('idle');
-				addOffset("singUP", -59, 57);
-				addOffset("singRIGHT", -58, -6);
-				addOffset("singLEFT", -4, -2);
-				addOffset("singDOWN", -40, -30);
-				addOffset("singUPmiss", -59, 57);
-				addOffset("singRIGHTmiss", -58, -6);
-				addOffset("singLEFTmiss", -4, -2);
-				addOffset("singDOWNmiss", -40, -30);
-				addOffset("hey", -2, 1);
-				addOffset('firstDeath', 17, 1);
-				addOffset('deathLoop', 17, 5);
-				addOffset('deathConfirm', 12, 36);
-				addOffset('scared', 6, 3);
-	
-				playAnim('idle');
+			case 'bf-3d':
+				frames = Paths.getSparrowAtlas('characters/3d_bf', 'shared');
 
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);	
+				}
+				loadOffsetFile(curCharacter);
+				
+				globalOffset = [-85, -272];
+				barColor = FlxColor.fromRGB(49, 176, 209);
+
+				playAnim('idle');
+				antialiasing = false;
 				nativelyPlayable = true;
-	
 				flipX = true;
 
-			case 'tristan-beta':
-				var tex = Paths.getSparrowAtlas('beta_tristan');
-				frames = tex;
-				animation.addByPrefix('idle', 'BF idle dance', 24, false);
-				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
-				animation.addByPrefix('singUPmiss', 'BF NOTE UP MISS', 24, false);
-				animation.addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS', 24, false);
-				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
-				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
-				animation.addByPrefix('hey', 'BF HEY', 24, false);
-	
-				animation.addByPrefix('firstDeath', "BF dies", 24, false);
-				animation.addByPrefix('deathLoop', "BF Dead Loop", 24, true);
-				animation.addByPrefix('deathConfirm', "BF Dead confirm", 24, false);
-				animation.addByPrefix('dodge', "boyfriend dodge", 24, false);
-				animation.addByPrefix('scared', 'BF idle shaking', 24);
-				animation.addByPrefix('hit', 'BF hit', 24, false);
-	
-				addOffset('idle');
-				addOffset("singUP", -59, 57);
-				addOffset("singRIGHT", -58, -6);
-				addOffset("singLEFT", -4, -2);
-				addOffset("singDOWN", -40, -30);
-				addOffset("singUPmiss", -59, 57);
-				addOffset("singRIGHTmiss", -58, -6);
-				addOffset("singLEFTmiss", -4, -2);
-				addOffset("singDOWNmiss", -40, -30);
-				addOffset("hey", -2, 1);
-				addOffset('firstDeath', 17, 1);
-				addOffset('deathLoop', 17, 5);
-				addOffset('deathConfirm', 12, 36);
-				addOffset('scared', 6, 3);
-	
-				playAnim('idle');
+			case 'bf-cool':
+				frames = Paths.getSparrowAtlas('characters/Cool_BF', 'shared');
+				
+				animation.addByPrefix('idle', 'BFIdle', 24, false);
+				for (anim in ['Left', 'Down', 'Up', 'Right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', 'BF${anim}', 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', 'Dead', 24, false);
+				}
+				loadOffsetFile(curCharacter);
 
-				nativelyPlayable = true;
-	
-				flipX = true;
+				skins.set('gfSkin', 'gf-cool');
+				skins.set('3d', 'bf-3d');
 
-			case 'bf-christmas':
-				var tex = Paths.getSparrowAtlas('christmas/bfChristmas');
-				frames = tex;
-				animation.addByPrefix('idle', 'BF idle dance', 24, false);
-				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
-				animation.addByPrefix('singUPmiss', 'BF NOTE UP MISS', 24, false);
-				animation.addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS', 24, false);
-				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
-				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
-				animation.addByPrefix('hey', 'BF HEY', 24, false);
-
-				addOffset('idle', -5);
-				addOffset("singUP", -29, 27);
-				addOffset("singRIGHT", -38, -7);
-				addOffset("singLEFT", 12, -6);
-				addOffset("singDOWN", -10, -50);
-				addOffset("singUPmiss", -29, 27);
-				addOffset("singRIGHTmiss", -30, 21);
-				addOffset("singLEFTmiss", 12, 24);
-				addOffset("singDOWNmiss", -11, -19);
-				addOffset("hey", 7, 4);
+				barColor = FlxColor.fromRGB(49, 176, 209);
 
 				playAnim('idle');
 
 				nativelyPlayable = true;
 
 				flipX = true;
-			case 'marcello-dave':
-				var tex = Paths.getSparrowAtlas('dave/secret/Marcello_Dave_Assets');
-				frames = tex;
-				animation.addByPrefix('idle', 'totally dave idle dance', 24, false);
-				animation.addByPrefix('singUP', 'totally dave NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'totally dave NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'totally dave NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'totally dave NOTE DOWN0', 24, false);
+			case 'nofriend':
+				frames = Paths.getSparrowAtlas('fiveNights/nofriend', 'shared');
 
-				addOffset('idle');
-				addOffset("singUP");
-				addOffset("singRIGHT");
-				addOffset("singLEFT");
-				addOffset("singDOWN");
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', 'miss $anim', 24, false);
+				}
+				animation.addByPrefix('hey', 'hey', 24, false);
+				
+				animation.addByIndices('attack', 'jumpscare', CoolUtil.numberArray(23, 0), '', 24, false);
+				animation.addByIndices('fail', 'jumpscare', CoolUtil.numberArray(44, 24), '', 24, false);
+				
+				animation.addByPrefix('jumpscare', 'jumpscare', 24, false);
+				trace(animation.getByName('jumpscare').frames);
+				
+				loadOffsetFile(curCharacter);
+				
+				globalOffset = [0, -75];
 
-				playAnim('idle');
-
-				nativelyPlayable = true;
-
+				barColor = FlxColor.fromString("0x127798");
+				
 				flipX = true;
 
 				antialiasing = false;
 				
+				playAnim('idle');
 			case 'bf-pixel':
-				frames = Paths.getSparrowAtlas('weeb/bfPixel');
+				frames = Paths.getSparrowAtlas('weeb/bfPixel', 'shared');
 				animation.addByPrefix('idle', 'BF IDLE', 24, false);
 				animation.addByPrefix('singUP', 'BF UP NOTE', 24, false);
 				animation.addByPrefix('singLEFT', 'BF LEFT NOTE', 24, false);
@@ -475,195 +161,651 @@ class Character extends FlxSprite
 				animation.addByPrefix('singRIGHTmiss', 'BF RIGHT MISS', 24, false);
 				animation.addByPrefix('singDOWNmiss', 'BF DOWN MISS', 24, false);
 
-				addOffset('idle');
-				addOffset("singUP");
-				addOffset("singRIGHT");
-				addOffset("singLEFT");
-				addOffset("singDOWN");
-				addOffset("singUPmiss");
-				addOffset("singRIGHTmiss");
-				addOffset("singLEFTmiss");
-				addOffset("singDOWNmiss");
-				if (!PlayState.curStage.startsWith('school'))
-				{
-					globaloffset[0] = -200;
-					globaloffset[1] = -175;
-				}
-				setGraphicSize(Std.int(width * 6));
+				loadOffsetFile(curCharacter);
+				
+				skins.set('gfSkin', 'gf-pixel');
+				skins.set('3d', 'bf-3d');
+					
+				globalOffset = [196, 160];
+
+				barColor = FlxColor.fromRGB(49, 176, 209);
+
+				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
 				updateHitbox();
 
-				playAnim('idle');
-
-				width -= 100;
-				height -= 100;
-
 				antialiasing = false;
-
 				nativelyPlayable = true;
-
-				flipX = true;
 				
+				playAnim('idle');
+				flipX = true;
 			case 'bf-pixel-dead':
-				frames = Paths.getSparrowAtlas('weeb/bfPixelsDEAD');
+				frames = Paths.getSparrowAtlas('weeb/bfPixelsDEAD', 'shared');
 				animation.addByPrefix('singUP', "BF Dies pixel", 24, false);
 				animation.addByPrefix('firstDeath', "BF Dies pixel", 24, false);
 				animation.addByPrefix('deathLoop', "Retry Loop", 24, true);
 				animation.addByPrefix('deathConfirm', "RETRY CONFIRM", 24, false);
-				animation.play('firstDeath');
+				
+				loadOffsetFile(curCharacter);
 
-				addOffset('firstDeath');
-				addOffset('deathLoop', -37);
-				addOffset('deathConfirm', -37);
-				playAnim('firstDeath');
-				// pixel bullshit
 				setGraphicSize(Std.int(width * 6));
 				updateHitbox();
+				
 				antialiasing = false;
 				nativelyPlayable = true;
 				flipX = true;
+				playAnim('firstDeath');
+			case 'generic-death':
+				frames = Paths.getSparrowAtlas('ui/lose', 'shared');
+				animation.addByPrefix('firstDeath', "lose... instance 1", 24, false);
+				animation.addByPrefix('deathLoop', "still", 24, true);
+				animation.addByPrefix('deathConfirm', "still", 24, false);
+				
+				loadOffsetFile(curCharacter);
+				flipX = true;
+				playAnim('firstDeath');
+			case 'gf':
+				// GIRLFRIEND CODE
+				frames = Paths.getSparrowAtlas('characters/GF_assets', 'shared');
 
-			case 'bambi':
-				var tex = Paths.getSparrowAtlas('dave/bambi');
-				frames = tex;
+				animation.addByPrefix('cheer', 'GF Cheer', 24, false);
+				animation.addByPrefix('singLEFT', 'GF left note', 24, false);
+				animation.addByPrefix('singRIGHT', 'GF Right Note', 24, false);
+				animation.addByPrefix('singUP', 'GF Up Note', 24, false);
+				animation.addByPrefix('singDOWN', 'GF Down Note', 24, false);
+				animation.addByIndices('sad', 'gf sad', [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], "", 24, false);
+				animation.addByIndices('danceLeft', 'GF Dancing Beat', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
+				animation.addByIndices('danceRight', 'GF Dancing Beat', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
+				animation.addByIndices('hairBlow', "GF Dancing Beat Hair blowing", [0, 1, 2, 3], "", 24);
+				animation.addByIndices('hairFall', "GF Dancing Beat Hair Landing", [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "", 24, false);
+				animation.addByPrefix('scared', 'GF FEAR', 24);
+
+				loadOffsetFile(curCharacter);
+
+				skins.set('3d', 'gf-3d');
+
+				barColor = FlxColor.fromString('#33de39');
+
+				playAnim('danceRight');
+			case 'gf-3d':
+				frames = Paths.getSparrowAtlas('characters/3d_gf', 'shared');
+				animation.addByPrefix('danceLeft', 'idle gf', 24, true);
+				animation.addByPrefix('danceRight', 'idle gf', 24, true);
+				animation.addByPrefix('sad', 'gf sad', 24, false);
+		
+				loadOffsetFile(curCharacter);
+				
+				globalOffset = [-50, -160];
+				
+				barColor = FlxColor.fromString('#33de39');
+
+				updateHitbox();
+				antialiasing = false;
+						
+				playAnim('danceRight');
+			case 'gf-cool':
+				frames = Paths.getSparrowAtlas('characters/Cool_GF', 'shared');
+				animation.addByPrefix('danceLeft', 'left', 24, true);
+				animation.addByPrefix('danceRight', 'right', 24, true);
+				animation.addByPrefix('sad', 'f', 24, false);
+		
+				loadOffsetFile(curCharacter);
+				
+				skins.set('3d', 'gf-3d');
+
+				barColor = FlxColor.fromString('#33de39');
+				
+				updateHitbox();						
+				playAnim('danceRight');
+			case 'gf-none':
+				frames = Paths.getSparrowAtlas('characters/noGF', 'shared');
+				
+				animation.addByIndices('danceLeft', 'GF Dancing Beat', [0], "", 24, false);
+				animation.addByIndices('danceRight', 'GF Dancing Beat', [0], "", 24, false);
+				animation.addByPrefix('cheer', 'GF Cheer', 24, false);
+				animation.addByPrefix('singLEFT', 'GF left note', 24, false);
+				animation.addByPrefix('singRIGHT', 'GF Right Note', 24, false);
+				animation.addByPrefix('singUP', 'GF Up Note', 24, false);
+				animation.addByPrefix('singDOWN', 'GF Down Note', 24, false);
+				animation.addByIndices('sad', 'gf sad', [0], "", 24, false);
+				animation.addByPrefix('scared', 'GF FEAR', 24);
+
+				loadOffsetFile(curCharacter);
+
+				barColor = FlxColor.fromString('#33de39');
+
+				playAnim('danceRight');
+			case 'gf-pixel':
+				frames = Paths.getSparrowAtlas('weeb/gfPixel', 'shared');
+				animation.addByIndices('singUP', 'GF IDLE', [2], "", 24, false);
+				animation.addByIndices('danceLeft', 'GF IDLE', [30, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "", 24, false);
+				animation.addByIndices('danceRight', 'GF IDLE', [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29], "", 24, false);
+				
+				loadOffsetFile(curCharacter);
+				
+				skins.set('3d', 'gf-3d');
+
+				globalOffset = [300, 280];
+
+				setGraphicSize(Std.int(width * PlayState.daPixelZoom));
+				updateHitbox();
+				antialiasing = false;
+				playAnim('danceRight');
+
+			case 'dave':
+				// DAVE SHITE ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas('dave/characters/dave_sheet', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', '${anim}0', 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', '$anim miss', 24, false);
+				}
+				animation.addByPrefix('hey', 'hey', 24, false);
+	
+				globalOffset = [0, -170];
+
+				skins.set('recursed', 'dave-recursed');
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+
+				barColor = FlxColor.fromRGB(15, 95, 255);
+
+				playAnim('idle');
+			case 'dave-annoyed':
+				// DAVE SHITE ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas('dave/characters/Dave_insanity_lol', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				animation.addByPrefix('scared', 'scared', 24, true);
+				animation.addByPrefix('um', 'um', 24, true);
+	
+				globalOffset = [0, -170];
+
+				loadOffsetFile(curCharacter);
+				
+				barColor = FlxColor.fromRGB(15, 95, 255);
+
+				playAnim('idle');
+			case 'dave-cool':
+				// DAVE SHITE ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas('dave/characters/thecoolerdave', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+				animation.addByPrefix('singUP', 'up', 24, false);
+				animation.addByPrefix('singRIGHT', 'right', 24, false);
+				animation.addByPrefix('singDOWN', 'down', 24, false);
+				animation.addByPrefix('singLEFT', 'left', 24, false);
+	
+				globalOffset = [0, -170];
+
+				loadOffsetFile(curCharacter);
+								
+				barColor = FlxColor.fromRGB(15, 95, 255);
+	
+				playAnim('idle');
+
+			case 'dave-angey':
+				// DAVE SHITE ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas('dave/characters/Dave_3D', 'shared');
+
+				animation.addByPrefix('idle', 'Idle', 24, false);
+				animation.addByPrefix('singUP', 'up', 24, false);
+				animation.addByPrefix('singRIGHT', 'right', 24, false);
+				animation.addByPrefix('singDOWN', 'down', 24, false);
+				animation.addByPrefix('singLEFT', 'left', 24, false);
+		
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+				
+				globalOffset = [-140, -380];
+				
+				barColor = FlxColor.fromRGB(130, 47, 42);
+
+				setGraphicSize(Std.int((width * 0.8) / furiosityScale));
+				updateHitbox();
+				antialiasing = false;
+
+				skins.set('recursed', 'dave-3d-recursed');
+
+				playAnim('idle');
+			case 'dave-fnaf':
+				frames = Paths.getSparrowAtlas('fiveNights/dave_fnaf', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', '${anim}0', 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', '$anim miss', 24, false);
+				}
+				animation.addByPrefix('huh', 'huh', 24, true);
+
+				globalOffset = [0, -170];
+
+				loadOffsetFile(curCharacter);
+
+				barColor = FlxColor.fromRGB(15, 95, 255);
+
+				nativelyPlayable = true;
+				playAnim('idle');
+				
+			case 'dave-splitathon':
+				frames = Paths.getSparrowAtlas('splitathon/Splitathon_Dave', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				animation.addByPrefix('scared', 'waiting', 24, true);
+				animation.addByPrefix('what', 'bruh', 24, true);
+				animation.addByPrefix('happy', 'happy', 24, true);
+
+				loadOffsetFile(curCharacter);
+				globalOffset = [0, -180];
+
+				barColor = FlxColor.fromRGB(15, 95, 255);
+
+				playAnim('idle');
+			case 'dave-recursed':
+				frames = Paths.getSparrowAtlas('recursed/characters/Dave_Recursed', 'shared');
+
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', '${anim}0', 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', '$anim miss', 24, false);
+				}
+
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+
+				barColor = FlxColor.WHITE;
+				playAnim('idle');
+				
+			case 'dave-3d-recursed':
+				frames = Paths.getSparrowAtlas('recursed/characters/Dave_3D_Recursed', 'shared');
+
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', '${anim}', 24, false);
+				}
+				globalOffset = [-140, -380];
+
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+
+				setGraphicSize(Std.int((width * 0.8) / furiosityScale));
+				updateHitbox();
+				
+				barColor = FlxColor.WHITE;
+				playAnim('idle');
+
+			case 'dave-death':
+				frames = Paths.getSparrowAtlas('dave/characters/Dave_Dead', 'shared');
+
+				animation.addByPrefix('firstDeath', 'dave dead hit', 24, false);
+				animation.addByPrefix('deathLoop', 'dave dead loop', 24, true);
+				animation.addByPrefix('deathConfirm', 'dave dead retry confirm', 24, false);
+
+				loadOffsetFile(curCharacter);
+				playAnim('firstDeath');
+			case 'dave-festival':
+				frames = Paths.getSparrowAtlas('festival/dave_festival', 'shared');
+				
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				animation.addByPrefix('sleepIdle', 'sleepy', 24, false);
+				animation.addByPrefix('scared', 'bruh', 24, false);
+				animation.addByPrefix('sleeping', 'sleeping', 24, true);
+				
+				globalOffset = [-10, -230];
+
+				loadOffsetFile(curCharacter);
+				
+				barColor = FlxColor.fromString("0x198200");
+
+				playAnim('idle');
+			case 'dave-festival-3d':
+				frames = Paths.getSparrowAtlas('festival/dave_festival_3d', 'shared');
+				
+				animation.addByPrefix('idle', 'Idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				loadOffsetFile(curCharacter);
+				
+				globalOffset = [-240, -450];
+				
+				barColor = FlxColor.fromString("0x619BC1");
+
+				setGraphicSize(Std.int((width * 0.8) / furiosityScale));
+				updateHitbox();
+				antialiasing = false;
+		
+				playAnim('idle');
+
+			case 'bambi-new':
+				frames = Paths.getSparrowAtlas('bambi/bambiRemake', 'shared');
+				animation.addByPrefix('idle', 'bambi idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', 'bambi $anim', 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', 'miss $anim', 24, false);
+				}
+				for (anim in ['left', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}-alt', 'bambi alt $anim', 24, false);
+				}
+				animation.addByPrefix('hey', 'bambi look', 24, false);
+				animation.addByPrefix('singSmash', 'bambi phone', 24, false);
+				animation.addByPrefix('singThrow', 'bambi throw', 24, false);
+				
+				barColor = FlxColor.fromRGB(37, 191, 55);
+
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+				
+				globalOffset = [37, 90];
+				skins.set('recursed', 'bambi-recursed');
+
+				playAnim('idle');
+			case 'bambi-recursed':
+				frames = Paths.getSparrowAtlas('recursed/characters/Bambi_Recursed', 'shared');
+
+				animation.addByPrefix('idle', 'bambi idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', 'bambi $anim', 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', 'miss $anim', 24, false);
+				}
+				animation.addByPrefix('singSmash', 'bambi phone', 24, false);
+				
+				barColor = FlxColor.WHITE;
+				loadOffsetFile(curCharacter);
+				playAnim('idle');
+
+			case 'bambi-death':
+				frames = Paths.getSparrowAtlas('bambi/Bambi_Death', 'shared');
+
+				animation.addByPrefix('firstDeath', 'bambi die', 24, false);
+				animation.addByPrefix('deathLoop', 'die loop', 24, true);
+				animation.addByPrefix('deathConfirm', 'die end', 24, false);
+
+				loadOffsetFile(curCharacter);
+				
+				playAnim('firstDeath');
+			case 'baldi':
+				frames = Paths.getSparrowAtlas('characters/BaldiInRoof', 'shared');
+				animation.addByPrefix('idle', 'Idle', 24, false);
+				animation.addByPrefix('singDOWN', 'down', 24, false);
+				animation.addByPrefix('singUP', 'up', 24, false);
+				animation.addByPrefix('singLEFT', 'left', 24, false);
+				animation.addByPrefix('singRIGHT', 'right', 24, false);
+
+				loadOffsetFile(curCharacter);
+
+				barColor = FlxColor.fromRGB(14, 174, 44);
+
+				setGraphicSize(Std.int((width * 2) / furiosityScale));
+				antialiasing = false;
+
+				playAnim('idle');
+
+			case 'bambi-splitathon':
+				frames = Paths.getSparrowAtlas('splitathon/Splitathon_Bambi', 'shared');
+				
+				animation.addByPrefix('idle', 'splitathon idle0', 24, true);
+				animation.addByPrefix('yummyCornLol', 'splitathon corn', 24, true);
+				animation.addByPrefix('umWhatIsHappening', 'splitathon idle 2', 24, true);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', 'splitathon $anim', 24, false);
+				}
+				loadOffsetFile(curCharacter);
+
+				globalOffset = [30, 85];
+				
+				barColor = FlxColor.fromRGB(37, 191, 55);
+
+				playAnim('idle');
+
+			case 'bambi-angey':
+				frames = Paths.getSparrowAtlas('bambi/Angry_Bambi', 'shared');
+
+				animation.addByPrefix('idle', 'a_bambi idle', 24, true);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', 'a_bambi $anim', 24, false);
+				}
+				animation.addByPrefix('singSmash', 'a_bambi phone', 24, false);
+				animation.addByPrefix('throw', 'a_bambi throw', 24, false);
+				animation.addByPrefix('scream', 'a_bambi scream', 24, false);
+				
+				barColor = FlxColor.fromRGB(37, 191, 55);
+				globalOffset = [37, 90];
+				
+				loadOffsetFile(curCharacter);
+
+				playAnim('idle');
+			case 'bambi-angey-old':
+				frames = Paths.getSparrowAtlas('bambi/bambimaddddd', 'shared');
+
+				animation.addByPrefix('idle', 'idle', 24, true);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				barColor = FlxColor.fromRGB(37, 191, 55);
+				globalOffset = [37, 90];
+				
+				loadOffsetFile(curCharacter);
+
+				playAnim('idle');
+			case 'bambi-3d':
+				// BAMBI SHITE ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas('expunged/Cheating', 'shared');
+				animation.addByPrefix('idle', 'Idle', 24, false);
+				animation.addByPrefix('singUP', 'Up', 24, false);
+				animation.addByPrefix('singRIGHT', 'Right', 24, false);
+				animation.addByPrefix('singDOWN', 'Down', 24, false);
+				animation.addByPrefix('singLEFT', 'Left', 24, false);
+		
+				barColor = FlxColor.fromRGB(13, 151, 21);
+
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+
+				globalOffset = [0, -350];
+
+				setGraphicSize(Std.int((width * 1.5) / furiosityScale));
+
+				updateHitbox();
+				antialiasing = false;
+		
+				playAnim('idle');
+			case 'bambi-unfair':
+				// BAMBI SHITE ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas('expunged/unfair_bambi', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				globalOffset = [0, -260];
+				barColor = FlxColor.fromRGB(178, 7, 7);
+
+				loadOffsetFile(curCharacter);
+				
+				antialiasing = false;
+				
+				setGraphicSize(Std.int((width * 1.3) / furiosityScale));
+
+				playAnim('idle');
+			case 'expunged':
+				// EXPUNGED SHITE ANIMATION LOADING CODE
+				frames = Paths.getSparrowAtlas('expunged/ExpungedFinal', 'shared');
+				animation.addByPrefix('idle', 'Idle', 24, false);
+				animation.addByPrefix('singUP', 'Up', 24, false);
+				animation.addByPrefix('singRIGHT', 'Right', 24, false);
+				animation.addByPrefix('singDOWN', 'Down', 24, false);
+				animation.addByPrefix('singLEFT', 'Left', 24, false);
+		
+				loadOffsetFile(curCharacter);
+				
+
+				barColor = FlxColor.fromRGB(82, 15, 15);
+				antialiasing = false;
+				
+				globalOffset = [0, -350];
+				
+				setGraphicSize(Std.int((width * 0.8) / furiosityScale));
+				updateHitbox();
+				
+				playAnim('idle');
+			case 'bambi-joke':
+				frames = Paths.getSparrowAtlas('joke/bambi-joke', 'shared');
+
+				animation.addByPrefix('idle', 'idle', 24, false);
+				animation.addByPrefix('singUP', 'up', 24, false);
+				animation.addByPrefix('singLEFT', 'left', 24, false);
+				animation.addByPrefix('singRIGHT', 'right', 24, false);
+				animation.addByPrefix('singDOWN', 'down', 24, false);
+				animation.addByPrefix('hey', 'hey', 24, false);
+
+				loadOffsetFile(curCharacter);
+
+				globalOffset = [70, 52];
+
+				barColor = FlxColor.fromRGB(12, 181, 0);
+				nativelyPlayable = true;
+				flipX = true;
+				playAnim('idle');
+
+			case 'bambi-joke-mad':
+				frames = Paths.getSparrowAtlas('joke/bambi-joke-mad', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+				animation.addByPrefix('singUP', 'up', 24, false);
+				animation.addByPrefix('singLEFT', 'left', 24, false);
+				animation.addByPrefix('singRIGHT', 'right', 24, false);
+				animation.addByPrefix('singDOWN', 'down', 24, false);
+				animation.addByPrefix('die', 'die', 24, false);
+
+				loadOffsetFile(curCharacter);
+				playAnim('idle');
+
+				barColor = FlxColor.fromRGB(12, 181, 0);
+				nativelyPlayable = true;
+				flipX = true;
+
+			case 'bambi-shredder':
+				frames = Paths.getSparrowAtlas('festival/bambi_shredder', 'shared');
+				
+				animation.addByPrefix('idle', 'shredder idle', 24, false);
+				animation.addByPrefix('singLEFT', 'shredder left', 24, false);
+				animation.addByPrefix('singDOWN', 'shredder down', 24, false);
+				animation.addByPrefix('singMIDDLE', 'shredder forward', 24, false);
+				animation.addByPrefix('singUP', 'shredder up', 24, false);
+				animation.addByPrefix('singRIGHT', 'shredder right', 24, false);
+				animation.addByPrefix('singMIDDLE', 'shredder forward', 24, false);
+				animation.addByPrefix('takeOut', 'shredder take out', 24, false);
+
+				barColor = FlxColor.fromRGB(37, 191, 55);
+				loadOffsetFile(curCharacter);
+				
+				globalOffset = [37, 90];
+			case 'tristan':
+				frames = Paths.getSparrowAtlas('dave/TRISTAN', 'shared');
+				
 				animation.addByPrefix('idle', 'BF idle dance', 24, false);
-				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+				for (anim in ['LEFT', 'DOWN', 'UP', 'RIGHT'])
+				{
+					animation.addByPrefix('sing$anim', 'BF NOTE ${anim}0', 24, false);
+					animation.addByPrefix('sing${anim}miss', 'BF NOTE $anim MISS', 24, false);
+				}
+				animation.addByPrefix('hey', 'BF HEY!!', 24, false);
+				animation.addByPrefix('scared', 'BF idle shaking', 24);
+				animation.addByPrefix('dodge', "boyfriend dodge", 24, false);
+	
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+
+				globalOffset = [0, 15];
+
+				barColor = FlxColor.fromRGB(255, 19, 15);
+				nativelyPlayable = true;
+				flipX = true;
+
+				skins.set('recursed', 'tristan-recursed');
+
+				playAnim('idle');
+			case 'tristan-opponent':
+				frames = Paths.getSparrowAtlas('dave/TristanHairFlipped', 'shared');
+				
+				
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
 				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
-				animation.addByPrefix('singUPmiss', 'BF NOTE UP MISS0', 24, false);
-				animation.addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS0', 24, false);
-				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS0', 24, false);
-				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS0', 24, false);
+				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+				
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+				
+				globalOffset = [0, 15];
+				
+				barColor = FlxColor.fromRGB(255, 19, 15);
+				
+				nativelyPlayable = true;
+				flipX = true;
+				playAnim('idle');
+
+			case 'tristan-death':
+				frames = Paths.getSparrowAtlas('dave/Tristan_Dead', 'shared');
 
 				animation.addByPrefix('firstDeath', "BF dies", 24, false);
 				animation.addByPrefix('deathLoop', "BF Dead Loop", 24, true);
 				animation.addByPrefix('deathConfirm', "BF Dead confirm", 24, false);
-	
-				addOffset('idle', -5);
-				addOffset("singUP", -29, 27);
-				addOffset("singRIGHT", -38, -7);
-				addOffset("singLEFT", 12, -6);
-				addOffset("singDOWN", -10, -50);
-				addOffset("singUPmiss", -29, 27);
-				addOffset("singRIGHTmiss", -30, 21);
-				addOffset("singLEFTmiss", 12, 24);
-				addOffset("singDOWNmiss", -11, -19);
-				addOffset('firstDeath', 37, 11);
-				addOffset('deathLoop', 37, 5);
-				addOffset('deathConfirm', 37, 69);
-				playAnim('idle');
 
-				nativelyPlayable = true;
+				loadOffsetFile(curCharacter);
+				playAnim('firstDeath');
 				flipX = true;
 
-
-			case 'bambi-old':
-				var tex = Paths.getSparrowAtlas('dave/bambi-old');
-				frames = tex;
-				animation.addByPrefix('idle', 'MARCELLO idle dance', 24, false);
-				animation.addByPrefix('singUP', 'MARCELLO NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'MARCELLO NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'MARCELLO NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'MARCELLO NOTE DOWN0', 24, false);
-				animation.addByPrefix('idle', 'MARCELLO idle dance', 24, false);
-				animation.addByPrefix('singUPmiss', 'MARCELLO MISS UP0', 24, false);
-				animation.addByPrefix('singLEFTmiss', 'MARCELLO MISS LEFT0', 24, false);
-				animation.addByPrefix('singRIGHTmiss', 'MARCELLO MISS RIGHT0', 24, false);
-				animation.addByPrefix('singDOWNmiss', 'MARCELLO MISS DOWN0', 24, false);
-
-				animation.addByPrefix('firstDeath', "MARCELLO dead0", 24, false);
-				animation.addByPrefix('deathLoop', "MARCELLO dead0", 24, true);
-				animation.addByPrefix('deathConfirm', "MARCELLO dead0", 24, false);
-	
-				addOffset('idle');
-				addOffset("singUP", -16, 3);
-				addOffset("singRIGHT", 0, -4);
-				addOffset("singLEFT", -10, -2);
-				addOffset("singDOWN", -10, -17);
-				addOffset("singUPmiss", -6, 4);
-				addOffset("singRIGHTmiss", 0, -4);
-				addOffset("singLEFTmiss", -10, -2);
-				addOffset("singDOWNmiss", -10, -17);
-
-				playAnim('idle');
-
-				nativelyPlayable = true;
-	
-				flipX = true;
-				
-			case 'bambi-new':
-				frames = Paths.getSparrowAtlas('bambi/bambiRemake');
-				animation.addByPrefix('idle', 'Idle', 24, false);
-				animation.addByPrefix('singDOWN', 'down', 24, false);
-				animation.addByPrefix('singUP', 'up', 24, false);
-				animation.addByPrefix('singLEFT', 'left', 24, false);
-				animation.addByPrefix('singRIGHT', 'right', 24, false);
-
-				addOffset('idle');
-				addOffset("singUP", 36, -5);
-				addOffset("singRIGHT", -45, -11);
-				addOffset("singLEFT", -10, -9);
-				addOffset("singDOWN", -12, -48);
-
-				playAnim('idle');
-
-			case 'bambi-farmer-beta':
-				frames = Paths.getSparrowAtlas('bambi/bamber_farm_beta_man');
-				animation.addByPrefix('idle', 'idle', 24, false);
-				animation.addByPrefix('singDOWN', 'down', 24, false);
-				animation.addByPrefix('singUP', 'up', 24, false);
-				animation.addByPrefix('singLEFT', 'left', 24, false);
-				animation.addByPrefix('singRIGHT', 'right', 24, false);
-
-				addOffset('idle');
-				addOffset("singUP", -2, 49);
-				addOffset("singRIGHT", -66, 13);
-				addOffset("singLEFT", 2, -4);
-				addOffset("singDOWN", -14, -23);
-
-				playAnim('idle');
-
-			case 'dave-splitathon':
-				frames = Paths.getSparrowAtlas('splitathon/Splitathon_Dave');
-				animation.addByPrefix('idle', 'SplitIdle', 24, false);
-				animation.addByPrefix('singDOWN', 'SplitDown', 24, false);
-				animation.addByPrefix('singUP', 'SplitUp', 24, false);
-				animation.addByPrefix('singLEFT', 'SplitLeft', 24, false);
-				animation.addByPrefix('singRIGHT', 'SplitRight', 24, false);
-				animation.addByPrefix('scared', 'Nervous', 24, true);
-				animation.addByPrefix('what', 'Mad', 24, true);
-				animation.addByPrefix('happy', 'Happy', 24, true);
-
-				addOffset('idle');
-				addOffset("singUP", -12, 20);
-				addOffset("singRIGHT", -40, -13);
-				addOffset("singLEFT", 32, 8);
-				addOffset("singDOWN", 3, -21);
-				addOffset("scared", -15, 11);
-				addOffset("what", -3, 1);
-				addOffset("happy", -3, 1);
-
-				playAnim('idle');
-				
-			case 'bambi-splitathon':
-				frames = Paths.getSparrowAtlas('splitathon/Splitathon_Bambi');
-				animation.addByPrefix('idle', 'Idle', 24, false);
-				animation.addByPrefix('singDOWN', 'Down', 24, false);
-				animation.addByPrefix('singUP', 'Up', 24, false);
-				animation.addByPrefix('singLEFT', 'Left', 24, false);
-				animation.addByPrefix('singRIGHT', 'Right', 24, false);
-							
-				addOffset('idle');
-				addOffset("singUP", -24, 15);
-				addOffset("singRIGHT", -34, -6);
-				addOffset("singLEFT", -3, 6);
-				addOffset("singDOWN", -20, -10);
-		
-				playAnim('idle');
-				
 			case 'tristan-golden':
-				var tex = Paths.getSparrowAtlas('dave/tristan_golden');
-				frames = tex;
+			   frames = Paths.getSparrowAtlas('dave/tristan_golden', 'shared');
+
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				for (anim in ['LEFT', 'DOWN', 'UP', 'RIGHT'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', 'BF NOTE ${anim}0', 24, false);
+					animation.addByPrefix('sing${anim.toUpperCase()}miss', 'BF NOTE $anim MISS', 24, false);
+				}
+				animation.addByPrefix('hey', 'BF HEY', 24, false);
+				animation.addByPrefix('scared', 'BF idle shaking', 24);
+				animation.addByPrefix('hit', 'BF hit', 24, false);
+				animation.addByPrefix('dodge', "boyfriend dodge", 24, false);
+	
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+				
+				globalOffset = [0, 15];
+
+				barColor = FlxColor.fromRGB(255, 222, 0);
+				skins.set('recursed', 'tristan-recursed');
+				nativelyPlayable = true;
+				flipX = true;
+	
+				playAnim('idle');
+			case 'tristan-golden-death':
+				frames = Paths.getSparrowAtlas('dave/tristan_golden_death', 'shared');
+
+				animation.addByPrefix('firstDeath', "BF dies", 24, false);
+				animation.addByPrefix('deathLoop', "BF Dead Loop", 24, true);
+				animation.addByPrefix('deathConfirm', "BF Dead confirm", 24, false);
+
+				loadOffsetFile(curCharacter);
+				
+				flipX = true;
+
+				playAnim('firstDeath');
+			case 'tristan-golden-glowing':
+				frames = Paths.getSparrowAtlas('dave/tristan_golden_glowing', 'shared');
+
 				animation.addByPrefix('idle', 'BF idle dance', 24, false);
 				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
 				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
@@ -674,126 +816,249 @@ class Character extends FlxSprite
 				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
 				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
 				animation.addByPrefix('hey', 'BF HEY', 24, false);
-	
-				animation.addByPrefix('firstDeath', "BF dies", 24, false);
-				animation.addByPrefix('deathLoop', "BF Dead Loop", 24, true);
-				animation.addByPrefix('deathConfirm', "BF Dead confirm", 24, false);
+
 				animation.addByPrefix('dodge', "boyfriend dodge", 24, false);
 				animation.addByPrefix('scared', 'BF idle shaking', 24);
-				animation.addByPrefix('hit', 'BF hit', 24, false);
-	
-				addOffset('idle');
-				addOffset("singUP", -59, 57);
-				addOffset("singRIGHT", -58, -6);
-				addOffset("singLEFT", -4, -2);
-				addOffset("singDOWN", -40, -30);
-				addOffset("singUPmiss", -59, 57);
-				addOffset("singRIGHTmiss", -58, -6);
-				addOffset("singLEFTmiss", -4, -2);
-				addOffset("singDOWNmiss", -40, -30);
-				addOffset("hey", -2, 1);
-				addOffset('firstDeath', 17, 1);
-				addOffset('deathLoop', 17, 5);
-				addOffset('deathConfirm', 12, 36);
-				addOffset('scared', 6, 3);
-				addOffset('hit', 13, 25);
-	
+						
+				loadOffsetFile(curCharacter);
+				globalOffset = [-35, -30];
+					
+				barColor = FlxColor.fromRGB(255, 222, 0);
+				skins.set('recursed', 'tristan-recursed');
+					
 				playAnim('idle');
-
-				nativelyPlayable = true;
 	
+				nativelyPlayable = true;
+		
+				flipX = true;	
+			case 'tristan-festival':
+				frames = Paths.getSparrowAtlas('festival/tristan_festival');
+				
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
+				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+				
+				loadOffsetFile(curCharacter + (isPlayer ? '-playable' : ''));
+				globalOffset = [0, 20];
+				
+				barColor = FlxColor.fromRGB(255, 19, 15);
+				
+				nativelyPlayable = true;
 				flipX = true;
-			case 'bambi-angey':
-				frames = Paths.getSparrowAtlas('bambi/bambimaddddd');
-				animation.addByPrefix('idle', 'idle', 24, true);
-				animation.addByPrefix('singLEFT', 'left', 24, false);
-				animation.addByPrefix('singDOWN', 'down', 24, false);
+				playAnim('idle');
+			case 'exbungo':
+				frames = Paths.getSparrowAtlas('characters/exbungo', 'shared');
+
+				animation.addByPrefix('idle', 'idle', 24, false);
 				animation.addByPrefix('singUP', 'up', 24, false);
+				animation.addByPrefix('singLEFT', 'left', 24, false);
 				animation.addByPrefix('singRIGHT', 'right', 24, false);
+				animation.addByPrefix('singDOWN', 'down', 24, false);
 
-				addOffset('idle');
-				addOffset('singLEFT');
-				addOffset('singDOWN');
-				addOffset('singUP', 0, 20);
-				addOffset('singRIGHT');
+				loadOffsetFile(curCharacter);
 
-				playAnim('idle');
-			case 'bambi-bevel':
-				var tex = Paths.getSparrowAtlas('bambi/bevel_bambi');
-				frames = tex;
-				animation.addByPrefix('idle', 'MARCELLO idle dance', 24, false);
-				animation.addByPrefix('singUP', 'MARCELLO NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'MARCELLO NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'MARCELLO NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'MARCELLO NOTE DOWN0', 24, false);
-				animation.addByPrefix('singUPmiss', 'MARCELLO NOTE UP MISS', 24, false);
-				animation.addByPrefix('singLEFTmiss', 'MARCELLO NOTE LEFT MISS', 24, false);
-				animation.addByPrefix('singRIGHTmiss', 'MARCELLO NOTE RIGHT MISS', 24, false);
-				animation.addByPrefix('singDOWNmiss', 'MARCELLO NOTE DOWN MISS', 24, false);
-				animation.addByPrefix('hey', 'MARCELLO HEY', 24, false);
+				globalOffset = [0, -300];
+				
+				setGraphicSize(Std.int((width * 1.3) / furiosityScale));
+				updateHitbox();
 
-				animation.addByPrefix('firstDeath', "MARCELLO dies", 24, false);
-				animation.addByPrefix('deathLoop', "MARCELLO Dead Loop", 24, true);
-				animation.addByPrefix('dodge', "boyfriend dodge", 24, false);
-				animation.addByPrefix('scared', 'MARCELLO idle shaking', 24);
-				animation.addByPrefix('hit', 'MARCELLO hit', 24, false);
+				barColor = FlxColor.fromRGB(253, 39, 33);
 
-				addOffset('idle');
-				addOffset("singUP", -59, 37);
-				addOffset("singRIGHT", -38, -3);
-				addOffset("singLEFT", 12, -6);
-				addOffset("singDOWN", -10, -50);
-				addOffset("singUPmiss", -59, 37);
-				addOffset("singRIGHTmiss", -38, -3);
-				addOffset("singLEFTmiss", 12, -6);
-				addOffset("singDOWNmiss", -10, -50);
-				addOffset("hey", 3, 21);
-				addOffset('firstDeath', 37, 11);
-				addOffset('deathLoop', 37, 5);
-				addOffset('scared', -24, -10);
+				nativelyPlayable = true;	
+				flipX = true;
+	
+				antialiasing = false;
 
 				playAnim('idle');
+			case 'recurser':
+				frames = Paths.getSparrowAtlas('recursed/Recurser', "shared");
+
+				animation.addByPrefix('idle', 'recursedIdle', 24, false);
+				animation.addByPrefix('singLEFT', 'recursedLeft', 24, false);
+				animation.addByPrefix('singDOWN', 'recursedDown', 24, false);
+				animation.addByPrefix('singUP', 'recursedUp', 24, false);
+				animation.addByPrefix('singRIGHT', 'recursedRight', 24, false);
+
+				barColor = FlxColor.fromRGB(44, 44, 44);
+
+				loadOffsetFile(curCharacter);
+
+				playAnim('idle');
+			case 'bf-recursed':
+				frames = Paths.getSparrowAtlas('recursed/Recursed_BF', 'shared');
+
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				for (anim in ['LEFT', 'DOWN', 'UP', 'RIGHT'])
+				{
+					animation.addByPrefix('sing$anim', 'BF NOTE ${anim}0', 24, false);
+					animation.addByPrefix('sing${anim}miss', 'BF NOTE $anim MISS', 24, false);
+				}
+				animation.addByPrefix('firstDeath', 'BF dies', 24, false);
+				animation.addByPrefix('deathLoop', 'BF Dead Loop', 24, true);
+				animation.addByPrefix('deathConfirm', 'BF Dead confirm', 24, false);
+				animation.addByPrefix('scared', 'BF idle shaking', 24, false);
+
+				loadOffsetFile(curCharacter);
+				
+				barColor = FlxColor.WHITE;
+				nativelyPlayable = true;
+				flipX = true;
+
+				playAnim('idle');
+			case 'tristan-recursed':
+				frames = Paths.getSparrowAtlas('recursed/characters/TristanRecursed', 'shared');
+
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
+				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+
+				animation.addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS', 24, false);
+				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
+				animation.addByPrefix('singUPmiss', 'BF NOTE UP MISS', 24, false);
+				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
+
+				animation.addByPrefix('firstDeath', 'BF dies', 24, false);
+				animation.addByPrefix('deathLoop', 'BF Dead Loop', 24, false);
+				animation.addByPrefix('deathConfirm', 'BF Dead confirm', 24, false);
+				animation.addByPrefix('scared', 'BF idle shaking', 24, false); 
+
+				flipX = true;
+				barColor = FlxColor.WHITE;
+
+				loadOffsetFile(curCharacter);
 
 				nativelyPlayable = true;
 
-				flipX = true;
-			case 'what-lmao':
-				var tex = Paths.getSparrowAtlas('bambi/what');
-				frames = tex;
-				animation.addByPrefix('idle', 'MARCELLO idle dance', 24, false);
-				animation.addByPrefix('singUP', 'MARCELLO NOTE UP0', 24, false);
-				animation.addByPrefix('singLEFT', 'MARCELLO NOTE LEFT0', 24, false);
-				animation.addByPrefix('singRIGHT', 'MARCELLO NOTE RIGHT0', 24, false);
-				animation.addByPrefix('singDOWN', 'MARCELLO NOTE DOWN0', 24, false);
-				animation.addByPrefix('singUPmiss', 'MARCELLO NOTE UP MISS', 24, false);
-				animation.addByPrefix('singLEFTmiss', 'MARCELLO NOTE LEFT MISS', 24, false);
-				animation.addByPrefix('singRIGHTmiss', 'MARCELLO NOTE RIGHT MISS', 24, false);
-				animation.addByPrefix('singDOWNmiss', 'MARCELLO NOTE DOWN MISS', 24, false);
-				animation.addByPrefix('hey', 'MARCELLO HEY', 24, false);
-
-				animation.addByPrefix('dodge', "boyfriend dodge", 24, false);
-				animation.addByPrefix('scared', 'MARCELLO idle shaking', 24);
-				animation.addByPrefix('hit', 'MARCELLO hit', 24, false);
-
-				addOffset('idle');
-				addOffset("singUP", -59, 37);
-				addOffset("singRIGHT", -38, -3);
-				addOffset("singLEFT", 12, -6);
-				addOffset("singDOWN", -10, -50);
-				addOffset("singUPmiss", -59, 37);
-				addOffset("singRIGHTmiss", -38, -3);
-				addOffset("singLEFTmiss", 12, -6);
-				addOffset("singDOWNmiss", -10, -50);
-				addOffset("hey", 3, 21);
-				addOffset('scared', -24, -10);
-
 				playAnim('idle');
+			case 'tb-funny-man':
+				frames = Paths.getSparrowAtlas('characters/DONT_GO_SNOOPING_WHERE_YOURE_NOT_SUPPOSED_TO', 'shared');
+
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
+				animation.addByPrefix('singUPmiss', 'BF NOTE UP MISS', 24, false);
+				animation.addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS', 24, false);
+				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
+				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
+				animation.addByPrefix('hey', 'BF HEY!!', 24, false);
+
+				// animation.addByPrefix('firstDeath', "LOL NO RESTARTING FOR YOU BUCKO", 24, false);
+				// animation.addByPrefix('deathLoop', "YOU GONNA HAVE TO RESTART", 24, true);
+				// animation.addByPrefix('deathConfirm', "IF YOU CAN SEE THIS YOU HAVE BEEN EPICLY TROLLED!!!", 24, false);
+				animation.addByPrefix('scared', 'idle shaking', 24);
+
+				loadOffsetFile(curCharacter);
+
+				skins.set('gfSkin', 'stereo');
+				skins.set('recursed', 'tb-recursed');
+
+				flipX = true;
+				barColor = FlxColor.fromRGB(102, 255, 0);
 
 				nativelyPlayable = true;
 
+				playAnim('idle');
+			case 'tb-recursed':
+				frames = Paths.getSparrowAtlas('recursed/characters/STOP_LOOKING_AT_THE_FILES', 'shared');
+
+				animation.addByPrefix('idle', 'BF idle dance', 24, false);
+				animation.addByPrefix('singUP', 'BF NOTE UP0', 24, false);
+				animation.addByPrefix('singLEFT', 'BF NOTE LEFT0', 24, false);
+				animation.addByPrefix('singRIGHT', 'BF NOTE RIGHT0', 24, false);
+				animation.addByPrefix('singDOWN', 'BF NOTE DOWN0', 24, false);
+				animation.addByPrefix('singUPmiss', 'BF NOTE UP MISS', 24, false);
+				animation.addByPrefix('singLEFTmiss', 'BF NOTE LEFT MISS', 24, false);
+				animation.addByPrefix('singRIGHTmiss', 'BF NOTE RIGHT MISS', 24, false);
+				animation.addByPrefix('singDOWNmiss', 'BF NOTE DOWN MISS', 24, false);
+				animation.addByPrefix('hey', 'BF HEY!!', 24, false);
+
+				// animation.addByPrefix('firstDeath', "LOL NO RESTARTING FOR YOU BUCKO", 24, false);
+				// animation.addByPrefix('deathLoop', "YOU GONNA HAVE TO RESTART", 24, true);
+				// animation.addByPrefix('deathConfirm', "IF YOU CAN SEE THIS YOU HAVE BEEN EPICLY TROLLED!!!", 24, false);
+				animation.addByPrefix('scared', 'BF idle shaking', 24);
+
+				loadOffsetFile(curCharacter);
+
 				flipX = true;
+				barColor = FlxColor.WHITE;
+
+				nativelyPlayable = true;
+
+				playAnim('idle');
+
+			case 'stereo':
+				frames = Paths.getSparrowAtlas('characters/IM_GONNA_TORNADER_YOU_AWAY', 'shared');
+
+				animation.addByPrefix('idle', 'bump', 24, false);
+
+				globalOffset = [500, 500];
+
+				loadOffsetFile(curCharacter);
+					
+				playAnim('idle');
+			case 'moldy':
+				frames = Paths.getSparrowAtlas('california/moldygh', 'shared');
+
+				animation.addByPrefix('idle', 'Idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				animation.addByPrefix('waa', 'cry', 24, false);
+				animation.addByPrefix('helpMe', 'stuck in fornia', 24, false);
+
+				loadOffsetFile(curCharacter);
+
+				globalOffset = [-30, -125];
+
+				barColor = FlxColor.fromRGB(39, 21, 130);
+
+				playAnim('idle');
+			case 'playrobot':
+				frames = Paths.getSparrowAtlas('playrobot/playbot', 'shared');
+				animation.addByPrefix('idle', 'idle', 24, false);
+
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				loadOffsetFile(curCharacter);
+				
+				barColor = FlxColor.fromRGB(162, 150, 188);
+				playAnim('idle');
+			case 'playrobot-shadow':
+				frames = Paths.getSparrowAtlas('playrobot/playrobot_shadow', 'shared');
+				
+				animation.addByPrefix('idle', 'idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', anim, 24, false);
+				}
+				loadOffsetFile(curCharacter);
+				
+				barColor = FlxColor.fromRGB(162, 150, 188);
+				playAnim('idle');
+			case 'dave-awesome':
+				frames = Paths.getSparrowAtlas('dave/characters/dave_awesome', 'shared');
+
+				animation.addByPrefix('idle', 'dave idle', 24, false);
+				for (anim in ['left', 'down', 'up', 'right'])
+				{
+					animation.addByPrefix('sing${anim.toUpperCase()}', 'dave $anim', 24, false);
+				}
+				globalOffset = [0, 40];
+
+				loadOffsetFile(curCharacter);
+				barColor = FlxColor.fromRGB(0, 94, 255);
+				playAnim('idle');
 			case 'shaggy':
-				frames = Paths.getSparrowAtlas('shaggy');
+				frames = Paths.getSparrowAtlas('characters/shaggy', 'shared');
 				animation.addByPrefix('danceRight', 'shaggy_idle0', 30, false);
 				animation.addByPrefix('danceLeft', 'shaggy_idle2', 30, false);
 				animation.addByPrefix('singUP', 'shaggy_up', 30, false);
@@ -801,22 +1066,101 @@ class Character extends FlxSprite
 				animation.addByPrefix('singRIGHT', 'shaggy_left', 30, false);
 				animation.addByPrefix('singDOWN', 'shaggy_down', 30, false);
 
-				addOffset('danceRight');
-				addOffset('danceLeft', -28);
-				addOffset("singUP", -39, 27);
-				addOffset("singRIGHT", -55, -114);
-				addOffset("singLEFT", 133, -38);
-				addOffset("singDOWN", 83, -160);
+				barColor = FlxColor.fromRGB(51, 114, 74);
+
+				loadOffsetFile(curCharacter);
+				globalOffset = [0, -350];
 
 				playAnim('danceRight');
 
 				nativelyPlayable = true;
+			case 'supershaggy':
+				frames = Paths.getSparrowAtlas('characters/shaggy_super', 'shared');
+				animation.addByPrefix('idle', 'shaggy_sidle', 12, true);
+				animation.addByPrefix('singUP', 'shaggy_sup', 30, false);
+				animation.addByPrefix('singLEFT', 'shaggy_sright', 30, false);
+				animation.addByPrefix('singRIGHT', 'shaggy_sleft', 30, false);
+				animation.addByPrefix('singDOWN', 'shaggy_sdown', 30, false);
+
+				barColor = FlxColor.fromRGB(51, 114, 74);
+
+				loadOffsetFile(curCharacter);
+				globalOffset = [0, -350];
+
+				playAnim('idle');
+
+				nativelyPlayable = true;
+			case 'godshaggy':
+				frames = Paths.getSparrowAtlas('characters/shaggy_god', 'shared');
+				animation.addByPrefix('idle', 'pshaggy_idle', 30, false);
+				animation.addByPrefix('singUP', 'pshaggy_up', 30, false);
+				animation.addByPrefix('singLEFT', 'pshaggy_right', 30, false);
+				animation.addByPrefix('singRIGHT', 'pshaggy_left', 30, false);
+				animation.addByPrefix('singDOWN', 'pshaggy_down', 30, false);
+
+				barColor = FlxColor.fromRGB(75, 51, 114);
+
+				loadOffsetFile(curCharacter);
+				globalOffset = [30, -400];
+
+				playAnim('idle');
+
+				nativelyPlayable = true;
+			case 'redshaggy':
+				frames = Paths.getSparrowAtlas('characters/shaggy_red', 'shared');
+				animation.addByPrefix('danceRight', 'shaggy_idle0', 30, false);
+				animation.addByPrefix('danceLeft', 'shaggy_idle2', 30, false);
+				animation.addByPrefix('singUP', 'shaggy_up', 30, false);
+				animation.addByPrefix('singLEFT', 'shaggy_right', 30, false);
+				animation.addByPrefix('singRIGHT', 'shaggy_left', 30, false);
+				animation.addByPrefix('singDOWN', 'shaggy_down', 30, false);
+
+				barColor = FlxColor.fromRGB(209, 26, 26);
+
+				loadOffsetFile(curCharacter);
+				globalOffset = [0, -350];
+
+				playAnim('danceRight');
+
+				nativelyPlayable = true;
+			case 'shaggy-lose':
+				frames = Paths.getSparrowAtlas('characters/shaggy_gameover', 'shared');
+
+				animation.addByPrefix('firstDeath', 'shaggy_lose_start', 24, false);
+				animation.addByPrefix('deathLoopRight', 'shaggy_lose_loop1', 24, false);
+				animation.addByPrefix('deathLoopLeft', 'shaggy_lose_loop2', 24, false);
+				animation.addByPrefix('deathConfirm', 'shaggy_lose_retry', 30, false);
+
+				loadOffsetFile(curCharacter);
+				playAnim('firstDeath');
+			case 'redshaggy-lose':
+				frames = Paths.getSparrowAtlas('characters/shaggy_red_gameover', 'shared');
+
+				animation.addByPrefix('firstDeath', 'shaggy_lose_start', 24, false);
+				animation.addByPrefix('deathLoopRight', 'shaggy_lose_loop1', 24, false);
+				animation.addByPrefix('deathLoopLeft', 'shaggy_lose_loop2', 24, false);
+				animation.addByPrefix('deathConfirm', 'shaggy_lose_retry', 30, false);
+
+				loadOffsetFile(curCharacter);
+				playAnim('firstDeath');
 		}
 		dance();
 
 		if(isPlayer)
 		{
 			flipX = !flipX;
+		}
+	}
+
+	function loadOffsetFile(character:String)
+	{
+		var offsetStuffs:Array<String> = CoolUtil.coolTextFile(Paths.offsetFile(character));
+		
+		for (offsetText in offsetStuffs)
+		{
+			var offsetInfo:Array<String> = offsetText.split(' ');
+
+			addOffset(offsetInfo[0], Std.parseFloat(offsetInfo[1]), Std.parseFloat(offsetInfo[2]));
 		}
 	}
 
@@ -861,6 +1205,7 @@ class Character extends FlxSprite
 	}
 
 	private var danced:Bool = false;
+	private var losedanced:Bool = false;
 
 	/**
 	 * FOR DANCING SHIT
@@ -871,7 +1216,7 @@ class Character extends FlxSprite
 		{
 			switch (curCharacter)
 			{
-				case 'gf' | 'gf-christmas' | 'gf-pixel' | 'shaggy':
+				case 'gf' | 'gf-pixel' | 'gf-3d' | 'gf-cool' | 'shaggy' | 'redshaggy':
 					if (!animation.curAnim.name.startsWith('hair'))
 					{
 						danced = !danced;
@@ -887,45 +1232,40 @@ class Character extends FlxSprite
 		}
 	}
 
+	public function danceLose()
+	{
+		if (losedanced)
+			playAnim('deathLoopRight', true);
+		else
+			playAnim('deathLoopLeft', true);
+
+		losedanced = !losedanced;
+	}
+
 	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
 	{
 		if (animation.getByName(AnimName) == null)
 		{
 			return; //why wasn't this a thing in the first place
 		}
-		if(AnimName.toLowerCase() == 'idle' && !canDance)
+		if((AnimName.toLowerCase() == 'idle' || AnimName.toLowerCase().startsWith('dance')) && !canDance)
 		{
 			return;
 		}
+		
+		if(AnimName.toLowerCase().startsWith('sing') && !canSing)
+		{
+			return;
+		}
+		
 		animation.play(AnimName, Force, Reversed, Frame);
 	
 		var daOffset = animOffsets.get(AnimName);
 		if (animOffsets.exists(AnimName))
 		{
-			if (curCharacter == 'shaggy') offset.set(daOffset[0], daOffset[1]);
-			else if (isPlayer)
-			{
-				if(!nativelyPlayable)
-				{
-					offset.set((daOffset[0] * -1) + globaloffset[0], daOffset[1] + globaloffset[1]);
-				}
-				else
-				{
-					offset.set(daOffset[0] + globaloffset[0], daOffset[1] + globaloffset[1]);
-				}
-			}
-			else
-			{
-				if(nativelyPlayable)
-				{
-					offset.set((daOffset[0] * -1), daOffset[1]);
-				}
-				else
-				{
-					offset.set(daOffset[0], daOffset[1]);
-				}
-			}
+			offset.set(daOffset[0] * offsetScale, daOffset[1] * offsetScale);
 		}
+		
 		else
 			offset.set(0, 0);
 	

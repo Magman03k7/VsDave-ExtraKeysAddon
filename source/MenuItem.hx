@@ -9,14 +9,21 @@ import flixel.util.FlxColor;
 
 class MenuItem extends FlxSpriteGroup
 {
-	public var targetY:Float = 0;
+	public var targetX:Float = 0;
 	public var week:FlxSprite;
 	public var flashingInt:Int = 0;
 
 	public function new(x:Float, y:Float, weekNum:Int = 0)
 	{
 		super(x, y);
-		week = new FlxSprite().loadGraphic(Paths.image('storymenu/week' + weekNum));
+		if (weekNum == 5 && !FlxG.save.data.hasPlayedMasterWeek)
+		{
+			week = new FlxSprite().loadGraphic(Paths.image('storymenu/weekquestionmark'));
+		}
+		else
+		{
+			week = new FlxSprite().loadGraphic(Paths.image('storymenu/week' + weekNum));
+		}
 		add(week);
 		week.antialiasing = true;
 	}
@@ -37,7 +44,7 @@ class MenuItem extends FlxSpriteGroup
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		y = FlxMath.lerp(y, (targetY * 120) + 480, 0.17);
+		x = FlxMath.lerp(x, (targetX * 450) + 420, 0.17);
 
 		if (isFlashing)
 			flashingInt += 1;

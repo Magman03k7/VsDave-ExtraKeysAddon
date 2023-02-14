@@ -1,5 +1,8 @@
 package;
 
+import flixel.ui.FlxButton;
+import openfl.net.FileReference;
+import openfl.display.TriangleCulling;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
@@ -8,7 +11,10 @@ import flixel.addons.display.FlxGridOverlay;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
-
+import openfl.events.Event;
+import openfl.events.IOErrorEvent;
+import openfl.events.IOErrorEvent;
+import openfl.events.IOErrorEvent;
 /**
 	*DEBUG MODE
  */
@@ -17,6 +23,7 @@ class AnimationDebug extends MusicBeatState
 	var bf:Boyfriend;
 	var dad:Character;
 	var char:Character;
+	var animationGhost:Character;
 	var textAnim:FlxText;
 	var dumbTexts:FlxTypedGroup<FlxText>;
 	var animList:Array<String> = [];
@@ -24,6 +31,7 @@ class AnimationDebug extends MusicBeatState
 	var isDad:Bool = true;
 	var daAnim:String = 'spooky';
 	var camFollow:FlxObject;
+	var _file:FileReference;
 
 	public function new(daAnim:String = 'spooky')
 	{
@@ -33,6 +41,7 @@ class AnimationDebug extends MusicBeatState
 
 	override function create()
 	{
+		
 		FlxG.sound.music.stop();
 
 		FlxG.mouse.visible = true;
@@ -52,6 +61,8 @@ class AnimationDebug extends MusicBeatState
 			add(dad);
 
 			char = dad;
+			animationGhost = dad;
+			animationGhost = new Character(dad.x, dad.y, dad.curCharacter, false);
 			dad.flipX = false;
 		}
 		else
@@ -62,8 +73,11 @@ class AnimationDebug extends MusicBeatState
 			add(bf);
 
 			char = bf;
+			animationGhost = new Character(bf.x, bf.y, bf.curCharacter, true);
 			bf.flipX = false;
 		}
+		add(animationGhost);
+		add(char);
 
 		dumbTexts = new FlxTypedGroup<FlxText>();
 		add(dumbTexts);
@@ -82,6 +96,8 @@ class AnimationDebug extends MusicBeatState
 		FlxG.camera.follow(camFollow);
 
 		super.create();
+
+		animationGhost.alpha = 0.3; 
 	}
 
 	function genBoyOffsets(pushList:Bool = true):Void
@@ -97,7 +113,6 @@ class AnimationDebug extends MusicBeatState
 
 			if (pushList)
 				animList.push(anim);
-
 			daLoop++;
 		}
 	}
@@ -115,16 +130,14 @@ class AnimationDebug extends MusicBeatState
 	{
 		textAnim.text = char.animation.curAnim.name;
 
+		if (FlxG.keys.justPressed.Z)
+		{
+			saveOffset();
+		}
 		if(FlxG.keys.justPressed.ESCAPE)
 		{
 			FlxG.switchState(new MainMenuState());
 		}
-
-		if(FlxG.keys.justPressed.F)
-		{
-			char.flipX = !char.flipX;
-		}
-
 		if (FlxG.keys.justPressed.E)
 			FlxG.camera.zoom += 0.25;
 		if (FlxG.keys.justPressed.Q)
@@ -160,6 +173,16 @@ class AnimationDebug extends MusicBeatState
 		{
 			curAnim += 1;
 		}
+		if (FlxG.keys.justPressed.F)
+		{
+			char.flipX = false;
+			animationGhost.flipX = false;
+		}
+		if (FlxG.keys.justPressed.G)
+		{
+			char.flipX = true;
+			animationGhost.flipX = true;
+		}
 
 		if (curAnim < 0)
 			curAnim = animList.length - 1;
@@ -174,7 +197,7 @@ class AnimationDebug extends MusicBeatState
 			updateTexts();
 			genBoyOffsets(false);
 		}
-
+		
 		var upP = FlxG.keys.anyJustPressed([UP]);
 		var rightP = FlxG.keys.anyJustPressed([RIGHT]);
 		var downP = FlxG.keys.anyJustPressed([DOWN]);
@@ -203,5 +226,53 @@ class AnimationDebug extends MusicBeatState
 		}
 
 		super.update(elapsed);
+	}
+	
+	private function saveOffset()
+	{
+		var offsetString = '';
+		for (anim => offsets in char.animOffsets)
+		{
+			var animationOffsets = offsets;
+			
+			offsetString += anim + " " + animationOffsets[0] + ' ' + animationOffsets[1] + '\n';
+		}
+		_file = new FileReference();
+		_file.addEventListener(Event.COMPLETE, onSaveComplete);
+		_file.addEventListener(Event.CANCEL, onSaveCancel);
+		_file.addEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+		_file.save(offsetString, char.curCharacter + ".txt");
+	}
+
+	function onSaveComplete(_):Void
+	{
+		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
+		_file.removeEventListener(Event.CANCEL, onSaveCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+		_file = null;
+		FlxG.log.notice("Successfully saved LEVEL DATA.");
+	}
+
+	/**
+	 * Called when the save file dialog is cancelled.
+	 */
+	function onSaveCancel(_):Void
+	{
+		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
+		_file.removeEventListener(Event.CANCEL, onSaveCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+		_file = null;
+	}
+
+	/**
+	 * Called if there is an error while saving the gameplay recording.
+	 */
+	function onSaveError(_):Void
+	{
+		_file.removeEventListener(Event.COMPLETE, onSaveComplete);
+		_file.removeEventListener(Event.CANCEL, onSaveCancel);
+		_file.removeEventListener(IOErrorEvent.IO_ERROR, onSaveError);
+		_file = null;
+		FlxG.log.error("Problem saving Level data");
 	}
 }

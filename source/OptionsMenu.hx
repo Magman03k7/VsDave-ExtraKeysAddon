@@ -14,6 +14,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import lime.utils.Assets;
+import flixel.util.FlxTimer;
 #if desktop
 import Discord.DiscordClient;
 #end
@@ -27,23 +28,74 @@ class OptionsMenu extends MusicBeatState
 
 	private var grpControls:FlxTypedGroup<Alphabet>;
 	var versionShit:FlxText;
+
+	var bgShader:Shaders.GlitchEffect;
+	var awaitingExploitation:Bool;
+
+	var languages:Array<Language> = new Array<Language>();
+	var currentLanguage:Int = 0;
+	var curLanguage:String = LanguageManager.save.data.language;
+	var songBarOptions = [
+		'ShowTime',
+		'SongName',
+	];
+	var curSongBarOptionSelected:Int;
 	override function create()
 	{
 		#if desktop
 		DiscordClient.changePresence("In the Options Menu", null);
 		#end
-		var menuBG:FlxSprite = new FlxSprite().loadGraphic(Paths.image('backgrounds/SUSSUS AMOGUS'));
-		controlsStrings = CoolUtil.coolStringFile((FlxG.save.data.dfjk ? 'DFJK' : 'WASD') + "\n" + (FlxG.save.data.newInput ? "Ghost Tapping" : "No Ghost Tapping") + "\n" + (FlxG.save.data.downscroll ? 'Downscroll' : 'Upscroll') + "\n" + (FlxG.save.data.eyesores ? 'Eyesores Enabled' : 'Eyesores Disabled') + "\n" + (FlxG.save.data.donoteclick ? "Hitsounds On" : "Hitsounds Off") + "\n" + (FlxG.save.data.freeplayCuts ? "Freeplay Cutscenes On" : "Freeplay Cutscenes Off") + "\nOpponent Notes Counter " + (!FlxG.save.data.opponentnotes ? "off" : "on") + "\nNew Unfairness Mod Chart " + (!FlxG.save.data.newunfair ? "off" : "on") + "\nMod Chart " + (!FlxG.save.data.modchart ? "off" : "on") + "\nHealth Drain " + (!FlxG.save.data.healthdrain ? "off" : "on") + "\nPractice Mode " + (!FlxG.save.data.practicemode ? "off" : "on") + "\nBot Play " + (!FlxG.save.data.botplay ? "off" : "on"));
-		
-		trace(controlsStrings);
+		var menuBG:FlxSprite = new FlxSprite();
 
-		menuBG.color = 0xFFea71fd;
-		menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
-		menuBG.updateHitbox();
-		menuBG.screenCenter();
-		menuBG.antialiasing = true;
-		menuBG.loadGraphic(MainMenuState.randomizeBG());
-		add(menuBG);
+		awaitingExploitation = (FlxG.save.data.exploitationState == 'awaiting');
+
+		if (awaitingExploitation)
+		{
+			menuBG = new FlxSprite(-600, -200).loadGraphic(Paths.image('backgrounds/void/redsky', 'shared'));
+			menuBG.scrollFactor.set();
+			menuBG.antialiasing = false;
+			add(menuBG);
+			
+			#if SHADERS_ENABLED
+			bgShader = new Shaders.GlitchEffect();
+			bgShader.waveAmplitude = 0.1;
+			bgShader.waveFrequency = 5;
+			bgShader.waveSpeed = 2;
+			
+			menuBG.shader = bgShader.shader;
+			#end
+		}
+		else
+		{
+			menuBG.color = 0xFFea71fd;
+			menuBG.setGraphicSize(Std.int(menuBG.width * 1.1));
+			menuBG.updateHitbox();
+			menuBG.antialiasing = true;
+			menuBG.loadGraphic(MainMenuState.randomizeBG());
+			add(menuBG);
+		}
+		
+		languages = LanguageManager.getLanguages();
+		curSongBarOptionSelected = songBarOptions.indexOf(FlxG.save.data.songBarOption);
+
+		controlsStrings = CoolUtil.coolStringFile( 
+			LanguageManager.getTextString('option_change_keybinds')
+			+ "\n" + (FlxG.save.data.newInput ? LanguageManager.getTextString('option_ghostTapping_on') : LanguageManager.getTextString('option_ghostTapping_off')) 
+			+ "\n" + (FlxG.save.data.downscroll ? LanguageManager.getTextString('option_downscroll') : LanguageManager.getTextString('option_upscroll'))
+			+ "\n" + (FlxG.save.data.songPosition ? LanguageManager.getTextString('option_songPosition_on') : LanguageManager.getTextString('option_songPosition_off'))
+			+ "\n" +  LanguageManager.getTextString('option_songBarType_${songBarOptions[curSongBarOptionSelected]}')
+			+ "\n" + (FlxG.save.data.eyesores ? LanguageManager.getTextString('option_eyesores_enabled') : LanguageManager.getTextString('option_eyesores_disabled')) 
+			+ "\n" + (FlxG.save.data.selfAwareness ? LanguageManager.getTextString('option_selfAwareness_on') : LanguageManager.getTextString('option_selfAwareness_off'))
+			+ "\n" + (FlxG.save.data.donoteclick ? LanguageManager.getTextString('option_hitsound_on') : LanguageManager.getTextString('option_hitsound_off'))
+			+ "\n" + (FlxG.save.data.noteCamera ? LanguageManager.getTextString('option_noteCamera_on') : LanguageManager.getTextString('option_noteCamera_off'))
+			+ "\n" + LanguageManager.getTextString('option_change_langauge')
+			+ "\n" + (FlxG.save.data.disableFps ? LanguageManager.getTextString('option_enable_fps') : LanguageManager.getTextString('option_disable_fps'))
+			+ "\n" + (CompatTool.save.data.compatMode ? LanguageManager.getTextString('option_enable_compat') : LanguageManager.getTextString('option_disable_compat'))
+			+ "\n" + (FlxG.save.data.modchart ? 'Mod Chart OFF' : 'Mod Chart ON')
+			#if debug
+			+ "\n" + (FlxG.save.data.botplay ? 'Bot Play ON' : 'Bot Play OFF')
+			#end
+			);
 
 		grpControls = new FlxTypedGroup<Alphabet>();
 		add(grpControls);
@@ -59,7 +111,6 @@ class OptionsMenu extends MusicBeatState
 			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
 		}
 
-
 		versionShit = new FlxText(5, FlxG.height - 18, 0, "Offset (Left, Right): " + FlxG.save.data.offset, 12);
 		versionShit.scrollFactor.set();
 		versionShit.setFormat("VCR OSD Mono", 16, FlxColor.WHITE, LEFT, FlxTextBorderStyle.OUTLINE, FlxColor.BLACK);
@@ -72,135 +123,95 @@ class OptionsMenu extends MusicBeatState
 	{
 		super.update(elapsed);
 
-			if (controls.BACK)
-				FlxG.switchState(new MainMenuState());
-			if (controls.UP_P)
-				changeSelection(-1);
-			if (controls.DOWN_P)
-				changeSelection(1);
-			
-			if (controls.RIGHT_R)
-			{
-				FlxG.save.data.offset++;
-				versionShit.text = "Offset (Left, Right): " + FlxG.save.data.offset;
-			}
+		#if SHADERS_ENABLED
+		if (bgShader != null)
+		{
+			bgShader.shader.uTime.value[0] += elapsed;
+		}
+		#end
 
-			if (controls.LEFT_R)
-				{
-					FlxG.save.data.offset--;
-					versionShit.text = "Offset (Left, Right): " + FlxG.save.data.offset;
-				}
-	
+		if (controls.BACK)
+		{
+			FlxG.save.flush();
+			CompatTool.save.flush();
+			FlxG.switchState(new MainMenuState());
+		}
+		if (controls.UP_P)
+			changeSelection(-1);
+		if (controls.DOWN_P)
+			changeSelection(1);
 
-			if (controls.ACCEPT)
+		if (controls.RIGHT_R)
+		{
+			FlxG.save.data.offset++;
+			versionShit.text = "Offset (Left, Right): " + FlxG.save.data.offset;
+		}
+
+		if (controls.LEFT_R)
+		{
+			FlxG.save.data.offset--;
+			versionShit.text = "Offset (Left, Right): " + FlxG.save.data.offset;
+		}	
+		if (controls.ACCEPT)
+		{
+			grpControls.remove(grpControls.members[curSelected]);
+			switch(curSelected)
 			{
-				grpControls.remove(grpControls.members[curSelected]);
-				switch(curSelected)
-				{
-					case 0:
-						FlxG.save.data.dfjk = !FlxG.save.data.dfjk;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.dfjk ? 'DFJK' : 'WASD'), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-						if (FlxG.save.data.dfjk)
-							controls.setKeyboardScheme(KeyboardScheme.Solo, true);
-						else
-							controls.setKeyboardScheme(KeyboardScheme.Duo(true), true);
-						
-					case 1:
-						FlxG.save.data.newInput = !FlxG.save.data.newInput;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.newInput ? "Ghost Tapping" : "No Ghost Tapping"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 1;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 2:
-						FlxG.save.data.downscroll = !FlxG.save.data.downscroll;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.downscroll ? 'Downscroll' : 'Upscroll'), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 2;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 3:
-						FlxG.save.data.eyesores = !FlxG.save.data.eyesores;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.eyesores ? 'Eyesores Enabled' : 'Eyesores Disabled'), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 3;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 4:
-						FlxG.save.data.donoteclick = !FlxG.save.data.donoteclick;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.donoteclick ? "Hitsounds On" : "Hitsounds Off"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 4;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 5:
-						FlxG.save.data.freeplayCuts = !FlxG.save.data.freeplayCuts;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, (FlxG.save.data.freeplayCuts ? "Freeplay Cutscenes On" : "Freeplay Cutscenes Off"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 5;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 6:
-						FlxG.save.data.opponentnotes = !FlxG.save.data.opponentnotes;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Opponent Notes Counter " + (!FlxG.save.data.opponentnotes ? "off" : "on"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 6;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 7:
-						FlxG.save.data.newunfair = !FlxG.save.data.newunfair;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "New Unfairness Mod Chart " + (!FlxG.save.data.newunfair ? "off" : "on"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 7;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 8:
-						FlxG.save.data.modchart = !FlxG.save.data.modchart;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Mod Chart " + (!FlxG.save.data.modchart ? "off" : "on"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 8;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 9:
-						FlxG.save.data.healthdrain = !FlxG.save.data.healthdrain;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Health Drain " + (!FlxG.save.data.healthdrain ? "off" : "on"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 9;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 10:
-						FlxG.save.data.practicemode = !FlxG.save.data.practicemode;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Practice Mode " + (!FlxG.save.data.practicemode ? "off" : "on"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 10;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-					case 11:
-						FlxG.save.data.botplay = !FlxG.save.data.botplay;
-						var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, "Bot Play " + (!FlxG.save.data.botplay ? "off" : "on"), true, false);
-						ctrl.isMenuItem = true;
-						ctrl.targetY = curSelected - 11;
-						ctrl.screenCenter(X);
-						ctrl.itemType = 'Vertical';
-						grpControls.add(ctrl);
-						
-				}
+				case 0:
+					new FlxTimer().start(0.01, function(timer:FlxTimer)
+					{
+						FlxG.switchState(new ChangeKeybinds());
+					});
+					updateGroupControls(LanguageManager.getTextString('option_change_keybinds'), 0, 'Vertical');
+				case 1:
+					FlxG.save.data.newInput = !FlxG.save.data.newInput;
+					updateGroupControls((FlxG.save.data.newInput ? LanguageManager.getTextString('option_ghostTapping_on') : LanguageManager.getTextString('option_ghostTapping_off')), 1, 'Vertical');	
+				case 2:
+					FlxG.save.data.downscroll = !FlxG.save.data.downscroll;
+					updateGroupControls((FlxG.save.data.downscroll ? LanguageManager.getTextString('option_downscroll') : LanguageManager.getTextString('option_upscroll')), 2, 'Vertical');
+				case 3:
+					FlxG.save.data.songPosition = !FlxG.save.data.songPosition;
+					updateGroupControls((FlxG.save.data.songPosition ? LanguageManager.getTextString('option_songPosition_on') : LanguageManager.getTextString('option_songPosition_off')), 3, 'Vertical');	
+				case 4:
+					curSongBarOptionSelected++;
+					if (curSongBarOptionSelected > songBarOptions.length - 1)
+					{
+						curSongBarOptionSelected = 0;
+					}
+					FlxG.save.data.songBarOption = songBarOptions[curSongBarOptionSelected];
+					updateGroupControls(LanguageManager.getTextString('option_songBarType_${songBarOptions[curSongBarOptionSelected]}'), 4, 'Vertical');	
+				case 5:
+					FlxG.save.data.eyesores = !FlxG.save.data.eyesores;
+					updateGroupControls((FlxG.save.data.eyesores ? LanguageManager.getTextString('option_eyesores_enabled') : LanguageManager.getTextString('option_eyesores_disabled')), 5, 'Vertical');
+				case 6:
+					FlxG.save.data.selfAwareness = !FlxG.save.data.selfAwareness;
+					updateGroupControls((FlxG.save.data.selfAwareness ? LanguageManager.getTextString('option_selfAwareness_on') : LanguageManager.getTextString('option_selfAwareness_off')), 6, 'Vertical');
+				case 7:
+					FlxG.save.data.donoteclick = !FlxG.save.data.donoteclick;
+					updateGroupControls((FlxG.save.data.donoteclick ? LanguageManager.getTextString('option_hitsound_on') : LanguageManager.getTextString('option_hitsound_off')), 7, 'Vertical');
+				case 8:
+					FlxG.save.data.noteCamera = !FlxG.save.data.noteCamera;
+					updateGroupControls((FlxG.save.data.noteCamera ? LanguageManager.getTextString('option_noteCamera_on') : LanguageManager.getTextString('option_noteCamera_off')), 8, 'Vertical');
+				case 9:
+					updateGroupControls(LanguageManager.getTextString('option_change_langauge'), 9, 'Vertical');
+					FlxG.switchState(new ChangeLanguageState());
+				case 10:
+					FlxG.save.data.disableFps = !FlxG.save.data.disableFps;
+					Main.fps.visible = !FlxG.save.data.disableFps;
+					updateGroupControls(FlxG.save.data.disableFps ? LanguageManager.getTextString('option_enable_fps') : LanguageManager.getTextString('option_disable_fps'), 10, 'Vertical');
+				case 11:
+					CompatTool.save.data.compatMode = !CompatTool.save.data.compatMode;
+					updateGroupControls(CompatTool.save.data.compatMode ? LanguageManager.getTextString('option_enable_compat') : LanguageManager.getTextString('option_disable_compat'), 11, 'Vertical');
+				case 12:
+					if (!awaitingExploitation) FlxG.save.data.modchart = !FlxG.save.data.modchart;
+					updateGroupControls(FlxG.save.data.modchart ? 'Mod Chart OFF' : 'Mod Chart ON', 12, 'Vertical');
+				#if debug
+				case 13:
+					if (!awaitingExploitation) FlxG.save.data.botplay = !FlxG.save.data.botplay;
+					updateGroupControls(FlxG.save.data.botplay ? 'Bot Play ON' : 'Bot Play OFF', 13, 'Vertical');
+				#end
 			}
+		}
 	}
 
 	var isSettingControl:Bool = false;
@@ -209,6 +220,15 @@ class OptionsMenu extends MusicBeatState
 	{
 		super.beatHit();
 		FlxTween.tween(FlxG.camera, {zoom:1.05}, 0.3, {ease: FlxEase.quadOut, type: BACKWARD});
+	}
+	function updateGroupControls(controlText:String, yIndex:Int, controlTextItemType:String)
+	{
+		var ctrl:Alphabet = new Alphabet(0, (70 * curSelected) + 30, controlText, true, false);
+		ctrl.screenCenter(X);
+		ctrl.isMenuItem = true;
+		ctrl.targetY = curSelected - yIndex;
+		ctrl.itemType = controlTextItemType;
+		grpControls.add(ctrl);
 	}
 
 	function changeSelection(change:Int = 0)

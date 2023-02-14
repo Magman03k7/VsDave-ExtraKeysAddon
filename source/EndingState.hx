@@ -4,7 +4,7 @@ import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
 /**
- * shut up idiot im not bbpanzu hes a gay
+ * shut up idiot im not bbpanzu hes a crazy!
  */
 class EndingState extends MusicBeatState
 {
@@ -23,7 +23,7 @@ class EndingState extends MusicBeatState
 	{
 		super.create();
 		var end:FlxSprite = new FlxSprite(0, 0);
-		end.loadGraphic(Paths.image("dave/" + _ending));
+		end.loadGraphic(Paths.image("dave/endings/" + _ending));
 		FlxG.sound.playMusic(Paths.music(_song),1,true);
 		add(end);
 		FlxG.camera.fade(FlxColor.BLACK, 0.8, true);	
@@ -44,7 +44,7 @@ class EndingState extends MusicBeatState
 	public function endIt()
 	{
 		trace("ENDING");
-		FlxG.switchState(new MainMenuState());
+		FlxG.switchState(new StoryMenuState());
 		FlxG.sound.playMusic(Paths.music('freakyMenu'));
 	}
 	

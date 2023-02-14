@@ -13,23 +13,29 @@ class OutdatedSubState extends MusicBeatState
 
 	public static var needVer:String = "IDFK LOL";
 
+	public var InExpungedState:Bool = false;
+
 	override function create()
 	{
 		super.create();
+		InExpungedState = FlxG.save.data.exploitationState == 'playing';
 		var bg:FlxSprite = new FlxSprite().makeGraphic(FlxG.width, FlxG.height, FlxColor.BLACK);
 		add(bg);
 		var txt:FlxText = null;
-		if (FlxG.save.data.begin_thing)
+		if (InExpungedState)
 		{
-			txt = new FlxText(0, 0, FlxG.width,
-				"Hello! \nThis mod utilizes shaders that may be of disturbance to some. \nIf you wish to disable these, \nturn off the Eyesores option in the options menu. \n Also, Supernovae and Glitch are not meant to be taken seriously and are not composed by me. \n Supernovae is by ArchWk, and Glitch is by The Boneyard. \nPress Enter to continue.",
-				32);
+			txt = new FlxText(0, 0, FlxG.width, LanguageManager.getTextString('intoWarningExpunged'), 32);
+			
+			FlxG.save.data.exploitationState = null;
+			FlxG.save.flush();
+		}
+		else if (FlxG.save.data.begin_thing)
+		{
+			txt = new FlxText(0, 0, FlxG.width, LanguageManager.getTextString('introWarningSeen'), 32);
 		}
 		else
 		{
-			txt = new FlxText(0, 0, FlxG.width,
-				"Hello! \nThis mod utilizes shaders that may be of disturbance to some. \nIf you wish to disable these, \npress N, otherwise press Y. You can change this in options. \n Also, Supernovae and Glitch are not meant to be taken seriously and are not composed by me. \n Supernovae is by ArchWk, and Glitch is by The Boneyard.",
-				32);
+			txt = new FlxText(0, 0, FlxG.width, LanguageManager.getTextString('introWarningFirstPlay'), 32);
 		}
 		txt.setFormat("Comic Sans MS Bold", 32, FlxColor.WHITE, CENTER);
 		txt.screenCenter();
@@ -39,25 +45,37 @@ class OutdatedSubState extends MusicBeatState
 
 	override function update(elapsed:Float)
 	{
-		if (controls.PAUSE && FlxG.save.data.begin_thing == true)
+		if (controls.PAUSE && (FlxG.save.data.begin_thing == true || InExpungedState))
 		{
-			leftState = true;
-			FlxG.switchState(new MainMenuState());
+			leaveState();
 		}
-		if (FlxG.keys.justPressed.Y && FlxG.save.data.begin_thing != true)
+		if (InExpungedState)
+		{
+			super.update(elapsed);
+			return;
+		}
+		if (FlxG.keys.justPressed.Y && FlxG.save.data.begin_thing != true || FlxG.keys.justPressed.ENTER && FlxG.save.data.begin_thing != true)
 		{
 			FlxG.save.data.begin_thing = true;
 			FlxG.save.data.eyesores = true;
-			leftState = true;
-			FlxG.switchState(new MainMenuState());
+			leaveState();
 		}
-		if (FlxG.keys.justPressed.N && FlxG.save.data.begin_thing != true)
+		if (FlxG.keys.justPressed.N && FlxG.save.data.begin_thing != true || FlxG.keys.justPressed.ENTER && FlxG.save.data.begin_thing != true)
 		{
 			FlxG.save.data.begin_thing = true;
 			FlxG.save.data.eyesores = false;
-			leftState = true;
-			FlxG.switchState(new MainMenuState());
+			leaveState();	
 		}
 		super.update(elapsed);
+	}
+	function leaveState()
+	{
+		if(!FlxG.save.data.alreadyGoneToWarningScreen)
+		{
+			FlxG.save.data.alreadyGoneToWarningScreen = true;
+			FlxG.save.flush();
+		}
+		leftState = true;
+		FlxG.switchState(new MainMenuState());
 	}
 }
